@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Core Labs — Bare Metal & IoT Mastery</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" />
+
+  <style>
+    /* ─── TOKENS ──────────────────────────────────────────── */
+    :root {
+      --bg:        #080e1a;
+      --bg-card:   #0d1628;
+      --bg-raised: #111f38;
+      --neon:      #2dd4bf;
+      --violet:    #818cf8;
+      --text:      #e8f0fe;
+      --muted:     #6b7f9e;
+      --border:    rgba(255,255,255,0.06);
+      --font-title: 'Syne', sans-serif;
+      --font-body:  'DM Sans', sans-serif;
+      --font-mono:  'DM Mono', monospace;
+    }
+
+    /* ─── RESET & BASE ────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 80px;
+    }
+
+    body {
+      background-color: var(--bg);
+      font-family: var(--font-body);
+      color: var(--text);
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6 { font-family: var(--font-title); }
+
+    /* FIX: scoped muted text — no global override that breaks gradient-text */
+    .t-muted { color: var(--muted); }
+    .lead-text {
+      color: #8da4c7;
+      font-size: 1.05rem;
+      line-height: 1.75;
+    }
+
+    /* ─── BACKGROUND GRID TEXTURE ─────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(45,212,191,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(45,212,191,0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── NAVIGATION ──────────────────────────────────────── */
+    /* FIX: was `position sticky` (missing colon) */
+    .custom-navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1050;
+      background-color: rgba(8, 14, 26, 0.92) !important;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;   /* FIX: was non-responsive fixed padding */
+    }
+
+    .navbar-brand {
+      font-family: var(--font-title);
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--text) !important;
+      letter-spacing: 1px;
+      text-decoration: none;
+    }
+
+    .brand-accent { color: var(--neon); }
+
+    .nav-link {
+      color: var(--muted) !important;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+      padding: 6px 12px !important;
+    }
+
+    .nav-link:hover { color: var(--neon) !important; }
+
+    /* ─── LAYOUT VIEWS ───────────────────────────────────── */
+    .view { position: relative; z-index: 1; }
+    .d-none { display: none !important; }
+
+    .slide-container {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 80px 24px;
+      min-height: calc(100vh - 80px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .section-pad {
+      padding: 90px 0;
+      border-top: 1px solid var(--border);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─── GRADIENT TEXT ───────────────────────────────────── */
+    /* FIX: isolated so global `p` override can't interfere */
+    .gradient-text {
+      background: linear-gradient(135deg, var(--violet) 20%, var(--neon) 80%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+    }
+
+    /* ─── BADGE ───────────────────────────────────────────── */
+    .badge-lab {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(45,212,191,0.08);
+      color: var(--neon);
+      border: 1px solid rgba(45,212,191,0.25);
+      padding: 7px 16px;
+      border-radius: 40px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    /* ─── BUTTONS ─────────────────────────────────────────── */
+    .btn-primary-lab {
+      background: linear-gradient(135deg, var(--violet), #6366f1);
+      color: #fff;
+      border-radius: 10px;
+      padding: 14px 30px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: none;
+      /* FIX: was `0 4px 20 rgba(...)` — missing `px` on spread */
+      box-shadow: 0 4px 20px rgba(129,140,248,0.25);
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .btn-primary-lab:hover, .btn-primary-lab:focus {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(129,140,248,0.45);
+      color: #fff;
+      outline: 2px solid var(--violet);
+      outline-offset: 3px;
+    }
+
+    .btn-outline-lab {
+      background: transparent;
+      color: var(--text);
+      border: 1.5px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 13px 28px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .btn-outline-lab:hover, .btn-outline-lab:focus {
+      border-color: var(--neon);
+      color: var(--neon);
+      background: rgba(45,212,191,0.06);
+      outline: 2px solid var(--neon);
+      outline-offset: 3px;
+    }
+
+    /* ─── TECH CARDS ──────────────────────────────────────── */
+    .tech-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 32px;
+      height: 100%;
+      transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+      text-decoration: none !important;
+      display: block;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .tech-card:hover, .tech-card:focus-visible {
+      transform: translateY(-5px);
+      border-color: rgba(45,212,191,0.4);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(45,212,191,0.1);
+    }
+
+    .tech-card:focus-visible { outline: 2px solid var(--neon); }
+
+    .icon-box {
+      font-size: 1.8rem;
+      color: var(--neon);
+      margin-bottom: 18px;
+      display: block;
+    }
+
+    .tech-card h3 { color: var(--text); font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
+    .tech-card p  { color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin: 0; }
+
+    /* ─── CURSUS BLOCKS ──────────────────────────────────── */
+    .cursus-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 36px;
+      height: 100%;
+    }
+
+    .cursus-block p, .cursus-block .small { color: #8da4c7; }
+
+    .module-step {
+      border-left: 2px dashed var(--violet);
+      padding-left: 22px;
+      position: relative;
+      margin-bottom: 28px;
+    }
+
+    .module-step::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 5px;
+      width: 14px;
+      height: 14px;
+      background: var(--neon);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--neon);
+    }
+
+    .module-step h5 { color: var(--text); font-size: 0.95rem; margin-bottom: 6px; }
+    .module-step p  { color: var(--muted); font-size: 0.85rem; margin: 0; }
+
+    /* ─── DID YOU KNOW ───────────────────────────────────── */
+    .did-you-know-box {
+      background: linear-gradient(135deg, var(--bg-raised), var(--bg-card));
+      border: 1px solid rgba(45,212,191,0.2);
+      border-left: 4px solid var(--neon);
+      border-radius: 18px;
+      padding: 32px;
+    }
+    .did-you-know-box p { color: #8da4c7; }
+
+    /* ─── VIDEO EMBED ─────────────────────────────────────── */
+    .video-wrap {
+      position: relative;
+      padding-bottom: 56.25%;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    }
+    .video-wrap iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: 0;
+    }
+
+    /* ─── FORM ─────────────────────────────────────────────── */
+    .form-control {
+      background-color: rgba(8,14,26,0.7);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text) !important;
+      padding: 14px 16px;
+      border-radius: 10px;
+      font-family: var(--font-body);
+      transition: border-color 0.2s;
+    }
+    .form-control::placeholder { color: var(--muted); opacity: 1; }
+    .form-control:focus {
+      background-color: rgba(8,14,26,0.9);
+      border-color: var(--neon);
+      box-shadow: 0 0 0 3px rgba(45,212,191,0.1);
+      color: var(--text) !important;
+      outline: none;
+    }
+
+    /* ─── FOOTER ──────────────────────────────────────────── */
+    .site-footer {
+      padding: 40px 24px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--muted);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─── SECTION TITLE ───────────────────────────────────── */
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--neon);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    /* ─── TAG PILL ─────────────────────────────────────────── */
+    .pill {
+      display: inline-block;
+      background: rgba(129,140,248,0.1);
+      color: var(--violet);
+      border: 1px solid rgba(129,140,248,0.2);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin: 3px;
+    }
+
+    /* ─── ANIMATIONS ──────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .anim-hero > * {
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards;
+    }
+    .anim-hero > *:nth-child(1) { animation-delay: 0.1s; }
+    .anim-hero > *:nth-child(2) { animation-delay: 0.2s; }
+    .anim-hero > *:nth-child(3) { animation-delay: 0.35s; }
+    .anim-hero > *:nth-child(4) { animation-delay: 0.5s; }
+
+    /* ─── CURSOR GLOW ─────────────────────────────────────── */
+    .cursor-glow {
+      position: fixed;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(45,212,191,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: left 0.12s ease, top 0.12s ease;
+      z-index: 0;
+    }
+
+    /* ─── SAVIEZ-VOUS GRID ────────────────────────────────── */
+    .svy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .svy-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      transition: border-color 0.25s, transform 0.25s;
+    }
+
+    .svy-item:hover {
+      border-color: rgba(45,212,191,0.3);
+      transform: translateY(-3px);
+    }
+
+    .svy-icon {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--c) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--c) 25%, transparent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: var(--c);
+    }
+
+    .svy-name {
+      font-weight: 700;
+      font-size: 0.82rem;
+      color: var(--text);
+      margin-bottom: 4px;
+      font-family: var(--font-title);
+    }
+
+    .svy-desc {
+      font-size: 0.76rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .svy-tip {
+      background: linear-gradient(135deg, rgba(45,212,191,0.07), rgba(129,140,248,0.07));
+      border: 1px solid rgba(45,212,191,0.2);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 0.82rem;
+      color: var(--neon);
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+    }
+
+    @media (max-width: 575px) {
+      .svy-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ─── RESPONSIVE ─────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .slide-container { padding: 60px 16px; }
+      .section-pad { padding: 60px 0; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
+
+  <!-- ─── NAVBAR ─────────────────────────────────────────── -->
+  <nav class="navbar navbar-expand-lg custom-navbar" aria-label="Navigation principale">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#" onclick="showSection('main-wrapper'); return false;" aria-label="Retour à l'accueil Core Labs">
+        <i class="bi bi-terminal-fill me-2" style="color:var(--neon)" aria-hidden="true"></i>CORE<span class="brand-accent">_</span>LABS
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Basculer le menu">
+        <span class="navbar-toggler-icon" style="filter:invert(1);"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav gap-1">
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('main-wrapper'); return false;">Accueil</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('main-wrapper'); scrollToId('formations-list'); return false;">Ateliers</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('cursus-detail'); return false;">Cursus C++</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('planification-detail'); return false;">Planification</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('main-wrapper'); scrollToId('support-detail'); return false;">Assistance</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('main-wrapper'); scrollToId('contact-detail'); return false;">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════
+       VIEW 1 — MAIN WRAPPER
+  ════════════════════════════════════════════════════════ -->
+  <main id="main-wrapper" class="view" aria-label="Contenu principal">
+
+    <!-- HERO -->
+    <section class="slide-container" id="home">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-7 text-center text-lg-start anim-hero">
+          <span class="badge-lab mb-4">
+            <i class="bi bi-cpu" aria-hidden="true"></i>Hardware & Software Mastery
+          </span>
+          <h1 class="display-3 fw-bold mb-3 lh-1">
+            Du code au<br><span class="gradient-text">bare-metal.</span>
+          </h1>
+          <p class="lead-text mb-5">
+            Dominez l'IoT, la mécatronique et la sécurité embarquée.<br>
+            Formations et support technique sur-mesure pour les esprits rigoureux.
+          </p>
+          <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+            <button onclick="showSection('cursus-detail')" class="btn-primary-lab" type="button">
+              Découvrir nos cursus
+            </button>
+            <button onclick="showSection('planification-detail')" class="btn-outline-lab" type="button">
+              Planifier un projet
+            </button>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <!-- FIX: allowfullscreen was set to a string value instead of boolean attr -->
+          <div class="video-wrap" aria-label="Vidéo d'introduction Core Labs">
+            <iframe src="https://www.youtube.com/embed/nGB94HbeJOg?start=19"
+              title="Vidéo de présentation Core Labs"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SAVIEZ-VOUS -->
+    <section class="section-pad" id="saviez-vous" aria-labelledby="svy-title">
+      <div class="container">
+        <div class="row align-items-center g-5">
+
+          <!-- LEFT: texte principal -->
+          <div class="col-lg-5">
+            <span class="section-label">Saviez-vous ?</span>
+            <h2 id="svy-title" class="h2 fw-bold mb-4">
+              Vos appareils<br>sont des <span class="gradient-text">mines de composantes</span>.
+            </h2>
+            <p class="lead-text mb-4">
+              Lave-vaisselle, machine à laver, thermopompe, four électrique…
+              Ces appareils renferment des composantes électroniques robustes et réutilisables
+              qui dorment dans les dépotoirs — alors qu'elles pourraient alimenter vos prochains prototypes.
+            </p>
+            <p class="lead-text mb-0">
+              Avant de recycler un appareil, <strong style="color:var(--text)">ouvrez-le</strong>.
+              Ce que vous y trouverez pourrait surprendre même les ingénieurs chevronnés.
+            </p>
+          </div>
+
+          <!-- RIGHT: grille de composantes -->
+          <div class="col-lg-7">
+            <div class="svy-grid">
+
+              <div class="svy-item">
+                <div class="svy-icon" style="--c: var(--neon)">
+                  <i class="bi bi-droplet-half" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <div class="svy-name">Électrovalves</div>
+                  <div class="svy-desc">Contrôle de flux 12–24 V récupéré sur lave-linge ou lave-vaisselle — pilotables directement via transistor depuis un MCU.</div>
+                </div>
+              </div>
+
+              <div class="svy-item">
+                <div class="svy-icon" style="--c: var(--violet)">
+                  <i class="bi bi-thermometer-half" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <div class="svy-name">Capteurs & sondes</div>
+                  <div class="svy-desc">NTC, thermistances, capteurs de pression, de niveau et d'humidité — déjà étalonnés pour des environnements exigeants.</div>
+                </div>
+              </div>
+
+              <div class="svy-item">
+                <div class="svy-icon" style="--c: #f59e0b">
+                  <i class="bi bi-lightning-charge" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <div class="svy-name">Circuits d'alimentation</div>
+                  <div class="svy-desc">Transformateurs, redresseurs, régulateurs linéaires et SMPS — des blocs d'alimentation industriels à moindre coût.</div>
+                </div>
+              </div>
+
+              <div class="svy-item">
+                <div class="svy-icon" style="--c: var(--neon)">
+                  <i class="bi bi-wind" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <div class="svy-name">Pompes & moteurs</div>
+                  <div class="svy-desc">Pompes de vidange DC, moteurs pas-à-pas de minuterie et ventilateurs brushless récupérés des sèche-linges et fours.</div>
+                </div>
+              </div>
+
+              <div class="svy-item">
+                <div class="svy-icon" style="--c: var(--violet)">
+                  <i class="bi bi-cpu" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <div class="svy-name">Transistors & relais</div>
+                  <div class="svy-desc">BJT de puissance, MOSFET et relais électromécaniques — des composantes de commutation haute-tension prêtes à l'emploi.</div>
+                </div>
+              </div>
+
+              <div class="svy-item">
+                <div class="svy-icon" style="--c: #f59e0b">
+                  <i class="bi bi-broadcast" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <div class="svy-name">Capteurs inductifs & Hall</div>
+                  <div class="svy-desc">Détecteurs de position, encodeurs magnétiques et capteurs de vitesse de rotation — idéaux pour la mécatronique DIY.</div>
+                </div>
+              </div>
+
+            </div><!-- /.svy-grid -->
+
+            <div class="svy-tip mt-4">
+              <i class="bi bi-recycle me-2" aria-hidden="true"></i>
+              <span>Un appareil en fin de vie ≠ composantes mortes. Le vrai laboratoire commence dans votre sous-sol.</span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUICK NAV CARDS -->
+    <section class="section-pad" id="formations-list" aria-labelledby="ateliers-title">
+      <div class="container">
+        <div class="text-center mb-5">
+          <span class="section-label">Explorer</span>
+          <h2 id="ateliers-title" class="h2 fw-bold">Nos domaines d'expertise</h2>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <a href="#" onclick="showSection('cursus-detail'); return false;" class="tech-card" role="button" tabindex="0"
+              aria-label="Apprendre Arduino C++">
+              <span class="icon-box"><i class="bi bi-braces-asterisk" aria-hidden="true"></i></span>
+              <h3>Apprendre Arduino C++ →</h3>
+              <p>Programmation orientée objet, gestion des registres et architectures AVR/ESP.</p>
+            </a>
+          </div>
+          <div class="col-md-4">
+            <a href="#" onclick="showSection('planification-detail'); return false;" class="tech-card" role="button" tabindex="0"
+              aria-label="Planification et support technique">
+              <span class="icon-box"><i class="bi bi-gear-wide-connected" aria-hidden="true"></i></span>
+              <h3>Planification & Support →</h3>
+              <p>Développement de firmwares, intégration de microcontrôleurs et collaborations.</p>
+            </a>
+          </div>
+          <div class="col-md-4">
+            <a href="#" onclick="scrollToId('contact-detail'); return false;" class="tech-card" role="button" tabindex="0"
+              aria-label="Nous joindre">
+              <!-- FIX: was `aria-hiddentrue` (malformed attribute) -->
+              <span class="icon-box"><i class="bi bi-terminal" aria-hidden="true"></i></span>
+              <h3>Nous joindre →</h3>
+              <p>Une question technique ? Établissez une liaison directe avec notre laboratoire.</p>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SAVIEZ-VOUS SECTION -->
+    <section class="section-pad" id="saviez-vous" aria-labelledby="sy-title">
+      <div class="container">
+
+        <div class="sy-header text-center mb-5">
+          <span class="section-label">Saviez-vous ?</span>
+          <h2 id="sy-title" class="h2 fw-bold mb-3">
+            Vos appareils domestiques sont des<br>
+            <span class="gradient-text">mines de composantes</span>
+          </h2>
+          <p class="lead-text mx-auto" style="max-width:640px;">
+            Électroménagers, chauffe-eau, thermostats, machines à laver — ces appareils renferment
+            des composantes électroniques de qualité industrielle qui peuvent servir de base à
+            vos prochains projets embarqués.
+          </p>
+        </div>
+
+        <!-- Component grid -->
+        <div class="row g-3 mb-5">
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="sy-chip">
+              <div class="sy-chip-icon" style="color:#2dd4bf"><i class="bi bi-droplet-half" aria-hidden="true"></i></div>
+              <div class="sy-chip-label">Électro-<br>vannes</div>
+              <div class="sy-chip-sub">Contrôle de fluide 12–24 V</div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="sy-chip">
+              <div class="sy-chip-icon" style="color:#818cf8"><i class="bi bi-thermometer-half" aria-hidden="true"></i></div>
+              <div class="sy-chip-label">Capteurs<br>NTC/PTC</div>
+              <div class="sy-chip-sub">Température & débit</div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="sy-chip">
+              <div class="sy-chip-icon" style="color:#2dd4bf"><i class="bi bi-lightning-charge" aria-hidden="true"></i></div>
+              <div class="sy-chip-label">Circuits<br>d'alim.</div>
+              <div class="sy-chip-sub">Régulateurs & ponts H</div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="sy-chip">
+              <div class="sy-chip-icon" style="color:#818cf8"><i class="bi bi-fan" aria-hidden="true"></i></div>
+              <div class="sy-chip-label">Pompes<br>DC/AC</div>
+              <div class="sy-chip-sub">Drainage & circulation</div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="sy-chip">
+              <div class="sy-chip-icon" style="color:#2dd4bf"><i class="bi bi-cpu" aria-hidden="true"></i></div>
+              <div class="sy-chip-label">Trans-<br>istors</div>
+              <div class="sy-chip-sub">MOSFETs & BJT de puissance</div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="sy-chip">
+              <div class="sy-chip-icon" style="color:#818cf8"><i class="bi bi-motherboard" aria-hidden="true"></i></div>
+              <div class="sy-chip-label">Relais &<br>triacs</div>
+              <div class="sy-chip-sub">Commutation de charge</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Extended did-you-know callout -->
+        <div class="sy-callout">
+          <div class="sy-callout-tag">
+            <i class="bi bi-recycle me-2" aria-hidden="true"></i>RÉCUPÉRATION INTELLIGENTE
+          </div>
+          <div class="row align-items-center g-4 mt-1">
+            <div class="col-lg-7">
+              <p class="sy-callout-body mb-3">
+                Un lave-linge hors-service contient typiquement un <strong>moteur brushless</strong>,
+                plusieurs <strong>capteurs de niveau</strong>, une <strong>électrovanne d'admission</strong>
+                et un <strong>module de puissance triac</strong> — soit l'équivalent de dizaines de dollars
+                en composantes réutilisables pour un projet d'automatisation ou de robotique légère.
+              </p>
+              <p class="sy-callout-body mb-0">
+                Avant de tout jeter, un atelier de démontage guidé avec Core Labs vous permet d'identifier,
+                tester et cataloguer chaque pièce récupérable. <strong style="color:var(--neon)">Zéro gaspillage, maximum d'apprentissage.</strong>
+              </p>
+            </div>
+            <div class="col-lg-5">
+              <div class="sy-parts-list">
+                <div class="sy-parts-title">Appareils à fort potentiel</div>
+                <div class="sy-part-row"><span class="sy-dot neon"></span>Lave-linge / sèche-linge</div>
+                <div class="sy-part-row"><span class="sy-dot violet"></span>Chauffe-eau électrique</div>
+                <div class="sy-part-row"><span class="sy-dot neon"></span>Thermostat intelligent</div>
+                <div class="sy-part-row"><span class="sy-dot violet"></span>Pompe à chaleur</div>
+                <div class="sy-part-row"><span class="sy-dot neon"></span>Lave-vaisselle</div>
+                <div class="sy-part-row"><span class="sy-dot violet"></span>Imprimante / scanner</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SUPPORT SECTION -->
+    <section class="section-pad" id="support-detail" aria-labelledby="support-title">
+      <div class="container">
+        <div class="row align-items-center g-5">
+          <div class="col-lg-5">
+            <span class="section-label">Assistance</span>
+            <h2 id="support-title" class="h2 fw-bold mb-3">Support technique<br><span class="gradient-text">sur-mesure</span></h2>
+            <p class="lead-text mb-4">
+              Blocage sur un firmware ? Problème de timing ou d'interruptions ?
+              Notre équipe intervient directement dans votre stack embarqué.
+            </p>
+            <div class="d-flex flex-wrap gap-2 mb-4">
+              <span class="pill">Arduino</span>
+              <span class="pill">ESP32</span>
+              <span class="pill">STM32</span>
+              <span class="pill">RTOS</span>
+              <span class="pill">CAN Bus</span>
+              <span class="pill">I²C / SPI</span>
+            </div>
+            <button onclick="scrollToId('contact-detail')" class="btn-primary-lab" type="button">Demander du support</button>
+          </div>
+          <div class="col-lg-7">
+            <div class="did-you-know-box">
+              <h4 class="fw-bold mb-3" style="color:var(--neon); font-family:var(--font-mono); font-size:0.8rem; letter-spacing:2px;">
+                ⚡ DID YOU KNOW?
+              </h4>
+              <p class="mb-3">
+                La majorité des bugs embarqués critiques surviennent lors de la gestion des interruptions
+                imbriquées et des états de course sur bus partagés — pas dans la logique applicative.
+              </p>
+              <p class="mb-0">
+                Notre approche combine analyse statique du code, inspection oscilloscopique en temps réel
+                et simulation HIL pour isoler les défauts à la source.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section class="section-pad" id="contact-detail" aria-labelledby="contact-title">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-7 text-center mb-5">
+            <span class="section-label">Contact</span>
+            <h2 id="contact-title" class="h2 fw-bold mb-3">Établir une liaison</h2>
+            <p class="lead-text">Projet, formation, collaboration ou simple question technique — on répond.</p>
+          </div>
+        </div>
+        <div class="row justify-content-center">
+          <div class="col-lg-6">
+            <div class="cursus-block">
+              <div class="mb-3">
+                <label for="contact-name" class="form-label t-muted small">Nom complet</label>
+                <input type="text" id="contact-name" class="form-control" placeholder="Votre nom" autocomplete="name" />
+              </div>
+              <div class="mb-3">
+                <label for="contact-email" class="form-label t-muted small">Courriel</label>
+                <input type="email" id="contact-email" class="form-control" placeholder="vous@domaine.com" autocomplete="email" />
+              </div>
+              <div class="mb-4">
+                <label for="contact-msg" class="form-label t-muted small">Message</label>
+                <textarea id="contact-msg" class="form-control" rows="5" placeholder="Décrivez votre besoin..."></textarea>
+              </div>
+              <button type="button" class="btn-primary-lab w-100" onclick="handleContactSubmit()">
+                <i class="bi bi-send me-2" aria-hidden="true"></i>Envoyer le message
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════
+       VIEW 2 — CURSUS C++
+  ════════════════════════════════════════════════════════ -->
+  <section id="cursus-detail" class="view d-none" aria-label="Cursus C++ embarqué">
+    <div class="container" style="padding: 80px 24px;">
+
+      <button onclick="showSection('main-wrapper')" class="btn-outline-lab mb-5 d-inline-flex align-items-center gap-2" type="button"
+        aria-label="Retour à l'accueil">
+        <i class="bi bi-arrow-left" aria-hidden="true"></i> Retour
+      </button>
+
+      <div class="text-center mb-5">
+        <span class="section-label">Formation</span>
+        <h2 class="display-5 fw-bold mb-3">Cursus C++ <span class="gradient-text">Embarqué</span></h2>
+        <p class="lead-text mx-auto" style="max-width:600px;">
+          De la syntaxe de base à l'architecture firmware avancée. Un parcours structuré pour les ingénieurs et makers exigeants.
+        </p>
+      </div>
+
+      <div class="row g-4 mb-5">
+        <div class="col-md-4">
+          <div class="cursus-block">
+            <div class="badge-lab mb-3">Module 01</div>
+            <h3 class="h5 fw-bold mb-3" style="color:var(--text)">Fondations C++</h3>
+            <div class="module-step">
+              <h5>Types, pointeurs, références</h5>
+              <p>Maîtrise de la mémoire statique et dynamique en environnement contraint.</p>
+            </div>
+            <div class="module-step">
+              <h5>Classes et encapsulation</h5>
+              <p>OOP appliqué aux drivers et abstractions matérielles.</p>
+            </div>
+            <div class="module-step">
+              <h5>Templates & generics</h5>
+              <p>Réutilisabilité zero-overhead adaptée aux MCU faible ressource.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="cursus-block">
+            <div class="badge-lab mb-3">Module 02</div>
+            <h3 class="h5 fw-bold mb-3" style="color:var(--text)">AVR & ESP Architecture</h3>
+            <div class="module-step">
+              <h5>Registres & périphériques</h5>
+              <p>Contrôle direct GPIO, UART, SPI, I²C sans couche d'abstraction.</p>
+            </div>
+            <div class="module-step">
+              <h5>Gestion des interruptions</h5>
+              <p>ISR, vecteurs, NVIC et prévention des race conditions.</p>
+            </div>
+            <div class="module-step">
+              <h5>Timers & PWM</h5>
+              <p>Génération de signaux précis, mesure de fréquence et contrôle moteur.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="cursus-block">
+            <div class="badge-lab mb-3">Module 03</div>
+            <h3 class="h5 fw-bold mb-3" style="color:var(--text)">Firmware Avancé</h3>
+            <div class="module-step">
+              <h5>FreeRTOS & scheduling</h5>
+              <p>Multitâche temps-réel, queues, sémaphores et mutexes.</p>
+            </div>
+            <div class="module-step">
+              <h5>Boot & mémoire Flash</h5>
+              <p>Séquences de démarrage, bootloaders personnalisés et EEPROM.</p>
+            </div>
+            <div class="module-step">
+              <h5>Sécurité embarquée</h5>
+              <p>Chiffrement matériel, secure boot et protection contre le débogage.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="did-you-know-box">
+        <h4 class="fw-bold mb-3" style="color:var(--neon); font-family:var(--font-mono); font-size:0.8rem; letter-spacing:2px;">
+          ⚡ POURQUOI C++ ET PAS C ?
+        </h4>
+        <p class="mb-0" style="color:#8da4c7">
+          Le C++ moderne (C++17/20) offre une abstraction zero-cost via les templates et les <code style="color:var(--neon)">constexpr</code>,
+          permettant d'écrire du code lisible et maintenable sans pénalité de performance.
+          Sur AVR, un <code style="color:var(--neon)">static_assert</code> peut détecter des erreurs de configuration à
+          la compilation — avant même de flasher le MCU.
+        </p>
+      </div>
+
+      <div class="text-center mt-5">
+        <button onclick="showSection('planification-detail')" class="btn-primary-lab" type="button">
+          S'inscrire / Planifier →
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       VIEW 3 — PLANIFICATION
+  ════════════════════════════════════════════════════════ -->
+  <section id="planification-detail" class="view d-none" aria-label="Planification de projet">
+    <div class="container" style="padding: 80px 24px;">
+
+      <button onclick="showSection('main-wrapper')" class="btn-outline-lab mb-5 d-inline-flex align-items-center gap-2" type="button"
+        aria-label="Retour à l'accueil">
+        <i class="bi bi-arrow-left" aria-hidden="true"></i> Retour
+      </button>
+
+      <div class="row align-items-start g-5">
+        <div class="col-lg-5">
+          <span class="section-label">Collaboration</span>
+          <h2 class="display-5 fw-bold mb-4">Planifier un <span class="gradient-text">projet</span></h2>
+          <p class="lead-text mb-4">
+            Que vous démarriez un prototype IoT, intégriez un nouveau microcontrôleur dans une chaîne de production
+            ou cherchiez à auditer un firmware existant — nous structurons avec vous.
+          </p>
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="cursus-block p-3 text-center">
+                <div style="font-size:1.5rem; color:var(--neon); margin-bottom:8px;"><i class="bi bi-lightning-charge" aria-hidden="true"></i></div>
+                <div style="font-size:0.8rem; font-weight:600; color:var(--text)">Prototypage rapide</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="cursus-block p-3 text-center">
+                <div style="font-size:1.5rem; color:var(--violet); margin-bottom:8px;"><i class="bi bi-shield-check" aria-hidden="true"></i></div>
+                <div style="font-size:0.8rem; font-weight:600; color:var(--text)">Audit sécurité</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="cursus-block p-3 text-center">
+                <div style="font-size:1.5rem; color:var(--neon); margin-bottom:8px;"><i class="bi bi-diagram-3" aria-hidden="true"></i></div>
+                <div style="font-size:0.8rem; font-weight:600; color:var(--text)">Architecture firmware</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="cursus-block p-3 text-center">
+                <div style="font-size:1.5rem; color:var(--violet); margin-bottom:8px;"><i class="bi bi-people" aria-hidden="true"></i></div>
+                <div style="font-size:0.8rem; font-weight:600; color:var(--text)">Formation équipe</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-7">
+          <div class="cursus-block">
+            <h3 class="h5 fw-bold mb-4" style="color:var(--text)">Décrire votre projet</h3>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="plan-name" class="form-label t-muted small">Nom / Organisation</label>
+                <input type="text" id="plan-name" class="form-control" placeholder="Ex: Acme Industries" autocomplete="organization" />
+              </div>
+              <div class="col-md-6">
+                <label for="plan-email" class="form-label t-muted small">Courriel</label>
+                <input type="email" id="plan-email" class="form-control" placeholder="vous@domaine.com" autocomplete="email" />
+              </div>
+              <div class="col-12">
+                <label for="plan-type" class="form-label t-muted small">Type de projet</label>
+                <select id="plan-type" class="form-control">
+                  <option value="" disabled selected>Sélectionner un type…</option>
+                  <option value="proto">Prototypage IoT</option>
+                  <option value="firmware">Développement firmware</option>
+                  <option value="audit">Audit de code embarqué</option>
+                  <option value="formation">Formation d'équipe</option>
+                  <option value="autre">Autre</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="plan-mcu" class="form-label t-muted small">Microcontrôleur ciblé</label>
+                <input type="text" id="plan-mcu" class="form-control" placeholder="Ex: STM32F4, ESP32-S3…" />
+              </div>
+              <div class="col-md-6">
+                <label for="plan-timeline" class="form-label t-muted small">Échéance estimée</label>
+                <input type="text" id="plan-timeline" class="form-control" placeholder="Ex: Q3 2026" />
+              </div>
+              <div class="col-12">
+                <label for="plan-desc" class="form-label t-muted small">Description du projet</label>
+                <textarea id="plan-desc" class="form-control" rows="4" placeholder="Contexte, contraintes, objectifs…"></textarea>
+              </div>
+              <div class="col-12">
+                <button type="button" class="btn-primary-lab w-100" onclick="handlePlanSubmit()">
+                  <i class="bi bi-send me-2" aria-hidden="true"></i>Soumettre le projet
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ──────────────────────────────────────────── -->
+  <footer class="site-footer" role="contentinfo">
+    <p class="mb-1">
+      <strong style="color:var(--text)">CORE_LABS</strong> — Bare-Metal Mastery
+    </p>
+    <p class="mb-0">© 2026 Core Labs Strategic · Salaberry-de-Valleyfield, Québec, Canada</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    /* ─── VIEW MANAGER ──────────────────────────────────────
+     * FIX: Original code called classList.add('d-none') on potentially
+     * null elements when cursus-detail/planification-detail didn't exist.
+     * Now uses safe querySelectorAll + data attribute pattern.
+     * FIX: Removed duplicate event binding (nav-view-main + href^="#")
+     ──────────────────────────────────────────────────────── */
+    const ALL_VIEWS = ['main-wrapper', 'cursus-detail', 'planification-detail'];
+
+    function showSection(targetId) {
+      ALL_VIEWS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('d-none');
+      });
+
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.classList.remove('d-none');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        // Accessibility: move focus to first heading in the view
+        const firstHeading = target.querySelector('h1, h2, h3, button');
+        if (firstHeading) {
+          firstHeading.setAttribute('tabindex', '-1');
+          firstHeading.focus({ preventScroll: true });
+        }
+      }
+
+      // Close mobile navbar if open
+      const nav = document.getElementById('navbarNav');
+      if (nav && nav.classList.contains('show')) {
+        bootstrap.Collapse.getInstance(nav)?.hide();
+      }
+    }
+
+    /* ─── SMOOTH SCROLL WITHIN MAIN WRAPPER ─────────────── */
+    function scrollToId(id) {
+      // If we're not on main-wrapper, switch first then scroll
+      const mainWrapper = document.getElementById('main-wrapper');
+      if (mainWrapper.classList.contains('d-none')) {
+        showSection('main-wrapper');
+        // Give DOM time to show before scrolling
+        setTimeout(() => doScroll(id), 50);
+      } else {
+        doScroll(id);
+      }
+    }
+
+    function doScroll(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const offset = 90;
+      const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+
+    /* ─── FORM HANDLERS ──────────────────────────────────── */
+    function handleContactSubmit() {
+      const name  = document.getElementById('contact-name').value.trim();
+      const email = document.getElementById('contact-email').value.trim();
+      const msg   = document.getElementById('contact-msg').value.trim();
+      if (!name || !email || !msg) {
+        alert('Veuillez remplir tous les champs.');
+        return;
+      }
+      alert(`Message reçu, ${name}. Nous vous répondrons à ${email} sous peu.`);
+    }
+
+    function handlePlanSubmit() {
+      const name = document.getElementById('plan-name').value.trim();
+      const email = document.getElementById('plan-email').value.trim();
+      if (!name || !email) {
+        alert('Veuillez indiquer votre nom et courriel.');
+        return;
+      }
+      alert(`Projet soumis. Nous analyserons votre demande et vous contacterons à ${email}.`);
+    }
+
+    /* ─── CURSOR GLOW ─────────────────────────────────────── */
+    const glow = document.getElementById('cursorGlow');
+    document.addEventListener('mousemove', e => {
+      glow.style.left = e.clientX + 'px';
+      glow.style.top  = e.clientY + 'px';
+    });
+  </script>
+
+</body>
+</html>
