@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title> Les Labos Inno Py-- Nos astuces technos sont notre force</title>
+  <title> Les Labos Inno Py -- Nos astuces technos sont notre force</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -234,119 +234,117 @@
       .slide-container { padding: 60px 16px; }
       .section-pad { padding: 60px 0; }
     }
-</style>
-<script>
-/**
- * Easter Egg : Simulation de la console de Matrix
- * Effet sonore "Toc-Toc" bas niveau + écriture séquentielle
- */
-/**
- * Easter Egg : Simulation de la console de Matrix
- * Se déclenche au premier clic de l'utilisateur sur la page pour contourner le blocage audio.
- */
-/**
- * Easter Egg : Simulation de la console de Matrix
- * Se déclenche au premier clic de l'utilisateur sur la page pour contourner le blocage audio.
- */
-function initialiserEasterEggMatrice() {
-  const terminal = document.getElementById('term-history');
-  if (!terminal) return;
-
-  // Configuration des textes traduits
-  const lignes = [
-    "Réveille-toi, Néo...",
-    "La Matrice te possède.",
-    "Suis le lapin blanc."
-  ];
-
-  let ligneActuelle = 0;
-  let indexCaracteres = 0;
-
-  // Fonction audio pour générer un "Toc" mécanique (Web Audio API)
-  function emettreSonToc() {
-    try {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(120, audioCtx.currentTime); 
-      
-      gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
-
-      osc.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.06);
-    } catch (e) {
-      console.log("Le flux audio reste bloqué par le navigateur :", e);
-    }
-  }
-
-  // Effet machine à écrire
-  function taperTexte() {
-    if (ligneActuelle >= lignes.length) {
-      setTimeout(() => {
-        const blocFinal = document.createElement('div');
-        blocFinal.style.color = 'var(--neon)';
-        blocFinal.style.fontFamily = 'var(--font-mono)';
-        blocFinal.innerText = '\n[Système prêt. Connexion établie.]\n';
-        terminal.appendChild(blocFinal);
-        terminal.scrollTop = terminal.scrollHeight;
-      }, 1000);
-      return;
-    }
-
-    if (indexCaracteres === 0) {
-      const nouvelleLigne = document.createElement('div');
-      nouvelleLigne.id = `matrix-line-${ligneActuelle}`;
-      nouvelleLigne.style.color = '#38bdf8'; 
-      nouvelleLigne.style.fontFamily = 'var(--font-mono)';
-      nouvelleLigne.style.marginBottom = '8px';
-      terminal.appendChild(nouvelleLigne);
-      
-      // Doubles clics mécaniques au début de chaque ligne
-      emettreSonToc();
-      setTimeout(emettreSonToc, 150); 
-    }
-
-    const conteneurLigne = document.getElementById(`matrix-line-${ligneActuelle}`);
-    if (conteneurLigne) {
-      conteneurLigne.innerText += lignes[ligneActuelle][indexCaracteres];
-    }
-
-    indexCaracteres++;
-    terminal.scrollTop = terminal.scrollHeight;
-
-    if (indexCaracteres < lignes[ligneActuelle].length) {
-      setTimeout(taperTexte, 120); 
-    } else {
-      ligneActuelle++;
-      indexCaracteres = 0;
-      setTimeout(taperTexte, 1800); 
-    }
-  }
-
-  // Attendre une interaction pour libérer l'AudioContext
-  function demarrerSurInteraction() {
-    // Vide le texte initial du terminal pour laisser place à l'effet Matrix
-    terminal.textContent = '';
-    
-    // Lance l'animation
-    setTimeout(taperTexte, 500);
-    
-    // Supprime l'écouteur pour éviter de relancer le script aux clics suivants
-    document.removeEventListener('click', demarrerSurInteraction);
-  }
-
-  // Écoute le premier clic sur la page
-  document.addEventListener('click', demarrerSurInteraction);
+/* Alignement strict de la fin de la section planification sur la marge de droite */
+#planification-detail .slide-container {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+    box-sizing: border-box !important;
+    max-width: 1280px !important;
+    width: 100% !important;
 }
 
-document.addEventListener('DOMContentLoaded', initialiserEasterEggMatrice);
-</script>
+/* Forcer les formulaires ou rangées internes à respecter la grille de droite */
+#planification-detail .row {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+}
+
+/* Alignement du bouton ou de la boîte de validation tout à droite si nécessaire */
+#planification-detail .btn-primary-lab, 
+#planification-detail .form-control {
+    max-width: 100%;
+}
+  </style>
+
+  <script>
+    function initialiserEasterEggMatrice() {
+      const terminal = document.getElementById('term-history');
+      if (!terminal) return;
+
+      const lignes = [
+        "Réveille-toi, Néo...",
+        "La Matrice te possède.",
+        "Suis le lapin blanc."
+      ];
+
+      let ligneActuelle = 0;
+      let indexCaracteres = 0;
+
+      function emettreSonToc() {
+        try {
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(120, audioCtx.currentTime); 
+          
+          gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+
+          osc.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.06);
+        } catch (e) {
+          console.log("Le flux audio reste bloqué par le navigateur :", e);
+        }
+      }
+
+      function taperTexte() {
+        if (ligneActuelle >= lignes.length) {
+          setTimeout(() => {
+            const blocFinal = document.createElement('div');
+            blocFinal.style.color = 'var(--neon)';
+            blocFinal.style.fontFamily = 'var(--font-mono)';
+            blocFinal.innerText = '\n[Système prêt. Connexion établie.]\n';
+            terminal.appendChild(blocFinal);
+            terminal.scrollTop = terminal.scrollHeight;
+          }, 1000);
+          return;
+        }
+
+        if (indexCaracteres === 0) {
+          const nouvelleLigne = document.createElement('div');
+          nouvelleLigne.id = `matrix-line-${ligneActuelle}`;
+          nouvelleLigne.style.color = '#38bdf8'; 
+          nouvelleLigne.style.fontFamily = 'var(--font-mono)';
+          nouvelleLigne.style.marginBottom = '8px';
+          terminal.appendChild(nouvelleLigne);
+          
+          emettreSonToc();
+          setTimeout(emettreSonToc, 150); 
+        }
+
+        const conteneurLigne = document.getElementById(`matrix-line-${ligneActuelle}`);
+        if (conteneurLigne) {
+          conteneurLigne.innerText += lignes[ligneActuelle][indexCaracteres];
+        }
+
+        indexCaracteres++;
+        terminal.scrollTop = terminal.scrollHeight;
+
+        if (indexCaracteres < lignes[ligneActuelle].length) {
+          setTimeout(taperTexte, 120); 
+        } else {
+          ligneActuelle++;
+          indexCaracteres = 0;
+          setTimeout(taperTexte, 1800); 
+        }
+      }
+
+      function demarrerSurInteraction() {
+        terminal.textContent = '';
+        setTimeout(taperTexte, 500);
+        document.removeEventListener('click', demarrerSurInteraction);
+      }
+
+      document.addEventListener('click', demarrerSurInteraction);
+    }
+
+    document.addEventListener('DOMContentLoaded', initialiserEasterEggMatrice);
+  </script>
 </head>
 
 <body>
@@ -444,7 +442,7 @@ document.addEventListener('DOMContentLoaded', initialiserEasterEggMatrice);
       </div>
     </section>
 
-    <!-- LAB LOGS — MIS À JOUR -->
+    <!-- LAB LOGS -->
     <section class="section-pad" aria-labelledby="loglabel">
       <div class="container">
         <div class="log-block">
@@ -505,12 +503,12 @@ document.addEventListener('DOMContentLoaded', initialiserEasterEggMatrice);
                 <div class="log-tag amber">
                   <span class="log-dot amber"></span>[LOG #042] — Optimisation Énergétique
                 </div>
-                <p class="log-entry-text">Tests de boucle Deep Sleep concluants sur ESP32 et ESP8266. Consommation validée à ~15 µA en veille profonde. Autonomie théorique de 247 jours atteinte sur batterie LiFePO₄ 3400 mAh.</p>
+                <p class="log-entry-text">Tests de boucle Deep Sleep concluants sur ESP32 and ESP8266. Consommation validée à ~15 µA en veille profonde. Autonomie théorique de 247 jours atteinte sur batterie LiFePO₄ 3400 mAh.</p>
                 <div class="log-status">► STATUS: COMPLÉTÉ &nbsp;|&nbsp; Plateforme: ESP32 / ESP8266 &nbsp;|&nbsp; 2026-05-03</div>
               </div>
             </div>
 
-          </div><!-- /.row -->
+          </div>
 
           <div class="text-center mt-4">
             <a href="#" onclick="showSection('encours-detail'); return false;" class="btn-outline-lab" style="padding:10px 24px; font-size:0.85rem;">
@@ -707,7 +705,7 @@ document.addEventListener('DOMContentLoaded', initialiserEasterEggMatrice);
                 <span class="term-dot green"></span>
                 <span class="term-title">Inno_Py_labs@io_node — bash</span>
               </div>
-              <div class="term-history" id="term-history">Labos Inno Py  Secure Terminal v1.0.2
+              <div class="term-history" id="term-history">Labos Inno Py Secure Terminal v1.0.2
 Tapez 'help' pour lister les requêtes disponibles.</div>
               <div class="term-input-row">
                 <span class="term-prompt">inno_lab@io_node:~$</span>
@@ -744,9 +742,9 @@ Tapez 'help' pour lister les requêtes disponibles.</div>
                 <label for="contact-msg" class="form-label t-muted small">Spécifications</label>
                 <textarea id="contact-msg" class="form-control" rows="5" placeholder="Décrivez votre besoin technique ou les spécifications de votre projet…"></textarea>
               </div>
-              <button type="button" class="btn-primary-lab w-100" onclick="handleContactSubmit()">
-                <i class="bi bi-chat-left-code me-2" aria-hidden="true"></i>Envoyer les spécifications
-              </button>
+              <div class="text-center p-3 rounded border border-secondary" style="background-color: var(--bg);">
+                <span class="small t-muted">Connexion directe établie via IP fixe sans intermédiaire cloud.</span>
+              </div>
             </div>
           </div>
         </div>
@@ -822,37 +820,15 @@ Tapez 'help' pour lister les requêtes disponibles.</div>
           <div class="plan-step"><div class="plan-step-header"><div class="plan-num">10</div><h5>Gestion Inter-Composants & Bus Matériels</h5></div><p>Mise en place et analyse des signaux pour I2C, bus SPI à haute vitesse et liaisons séries asynchrones (UART).</p></div>
           <div class="plan-step" style="border-left:3px solid #4ade80;"><div class="plan-step-header"><div class="plan-num green">11</div><h5 style="color:#4ade80">Tarifs Équitables & Accessibles</h5></div><p>L'accès à l'ingénierie technique de pointe ne devrait pas être limité par des budgets inaccessibles. Grille tarifaire avantageuse et proportionnelle à la complexité réelle de chaque projet.</p></div>
           <div class="plan-step"><div class="plan-step-header"><div class="plan-num">12</div><h5>Livrables Documentés & Transfert Technologique</h5></div><p>Codes sources intégralement commentés, schémas de câblage détaillés et accompagnement personnalisé pour garantir votre parfaite autonomie lors des phases de maintenance.</p></div>
-          <div class="cursus-block text-center mt-4" style="background:linear-gradient(135deg,var(--bg-raised),var(--bg-card)); border:1px dashed rgba(129,140,248,0.35);">
-            <span class="section-label">13</span>
-            <h3 class="h4 fw-bold mb-3 t-white">Établir un canal de communication</h3>
-            <p class="lead-text mb-4 mx-auto" style="max-width:500px;">Prêt à valider votre schéma d'implantation ou à optimiser le code de votre microcontrôleur ? Contactez notre laboratoire dès aujourd'hui.</p>
-            <button onclick="showSection('main-wrapper'); scrollToId('contact-detail');" class="btn-primary-lab" type="button">
-              <i class="bi bi-chat-left-code me-2" aria-hidden="true"></i>Soumettre mon idée de projet
-            </button>
-          </div>
+        
         </div>
-        <div class="col-lg-5">
-          <div class="cursus-block" style="position:sticky; top:100px;">
-            <h3 class="h5 fw-bold mb-4 t-white">Décrire votre projet</h3>
-            <div class="row g-3">
-              <div class="col-12"><label for="plan-name" class="form-label t-muted small">Nom / Organisation</label><input type="text" id="plan-name" class="form-control" placeholder="Ex: Acme Industries" autocomplete="organization" /></div>
-              <div class="col-12"><label for="plan-email" class="form-label t-muted small">Courriel</label><input type="email" id="plan-email" class="form-control" placeholder="vous@domaine.com" autocomplete="email" /></div>
-              <div class="col-12"><label for="plan-type" class="form-label t-muted small">Type de projet</label><select id="plan-type" class="form-control"><option value="" disabled selected>Sélectionner un type…</option><option value="proto">Prototypage IoT</option><option value="firmware">Développement firmware</option><option value="audit">Audit de code embarqué</option><option value="formation">Formation d'équipe</option><option value="autre">Autre</option></select></div>
-              <div class="col-12"><label for="plan-mcu" class="form-label t-muted small">Microcontrôleur ciblé</label><input type="text" id="plan-mcu" class="form-control" placeholder="Ex: STM32F4, ESP32-S3…" /></div>
-              <div class="col-12"><label for="plan-timeline" class="form-label t-muted small">Échéance estimée</label><input type="text" id="plan-timeline" class="form-control" placeholder="Ex: Q3 2026" /></div>
-              <div class="col-12"><label for="plan-desc" class="form-label t-muted small">Description du projet</label><textarea id="plan-desc" class="form-control" rows="4" placeholder="Contexte, contraintes, objectifs…"></textarea></div>
-              <div class="col-12"><button type="button" class="btn-primary-lab w-100" onclick="handlePlanSubmit()"><i class="bi bi-send me-2" aria-hidden="true"></i>Soumettre le projet</button></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+        
+    
 
   <!-- ═══════════════════════════════════════════════════════
        VIEW 4 — EN COURS
   ════════════════════════════════════════════════════════ -->
-<section id="encours-detail" class="view d-none" aria-label="Projets en cours">
+  <section id="encours-detail" class="view d-none" aria-label="Projets en cours">
     <div class="container" style="padding:80px 24px;">
       <button onclick="showSection('main-wrapper')" class="btn-outline-lab mb-5 d-inline-flex align-items-center gap-2" type="button">
         <i class="bi bi-arrow-left" aria-hidden="true"></i> Retour
@@ -1040,13 +1016,12 @@ Tapez 'help' pour lister les requêtes disponibles.</div>
         </div>
 
       </div>
+    </div>
   </section>
-
-     
 
   <!-- ─── FOOTER ─────────────────────────────────────────── -->
   <footer class="site-footer" role="contentinfo">
-    <p class="mb-1"><strong style="color:var(--text)">INNOPY_LABO</strong> — Les magiciens de l'iot</p>
+    <p class="mb-1"><strong style="color:var(--text)">FREDO_LABO</strong> — Bare-Metal Mastery</p>
     <p class="mb-0">© 2026 Frederic Hamelin  · Salaberry-de-Valleyfield, Québec, Canada</p>
   </footer>
 
@@ -1129,21 +1104,6 @@ Tapez 'help' pour lister les requêtes disponibles.</div>
       termHistory.scrollTop = termHistory.scrollHeight;
       termInput.value = '';
     });
-
-    /* ─── FORMS ──────────────────────────────────────────── */
-    function handleContactSubmit() {
-      const name  = document.getElementById('contact-name').value.trim();
-      const email = document.getElementById('contact-email').value.trim();
-      const msg   = document.getElementById('contact-msg').value.trim();
-      if (!name||!email||!msg) { alert('Veuillez remplir tous les champs.'); return; }
-      alert(`Message reçu, ${name}. Nous vous répondrons à ${email} sous peu.`);
-    }
-    function handlePlanSubmit() {
-      const name  = document.getElementById('plan-name').value.trim();
-      const email = document.getElementById('plan-email').value.trim();
-      if (!name||!email) { alert('Veuillez indiquer votre nom et courriel.'); return; }
-      alert(`Projet soumis. Nous analyserons votre demande et vous contacterons à ${email}.`);
-    }
 
     /* ─── CURSOR GLOW ────────────────────────────────────── */
     const glow = document.getElementById('cursorGlow');
