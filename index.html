@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Core Labs — Bare Metal & IoT Mastery</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" />
+
+  <style>
+    /* ─── TOKENS ─────────────────────────────────────────── */
+    :root {
+      --bg:         #080e1a;
+      --bg-card:    #0d1628;
+      --bg-raised:  #111f38;
+      --neon:       #2dd4bf;
+      --violet:     #818cf8;
+      --text:       #e8f0fe;
+      --muted:      #6b7f9e;
+      --border:     rgba(255,255,255,0.06);
+      --font-title: 'Syne', sans-serif;
+      --font-body:  'DM Sans', sans-serif;
+      --font-mono:  'DM Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+    body { background-color: var(--bg); font-family: var(--font-body); color: var(--text); margin: 0; overflow-x: hidden; }
+    h1,h2,h3,h4,h5,h6 { font-family: var(--font-title); }
+
+    .t-muted  { color: var(--muted); }
+    .t-neon   { color: var(--neon); }
+    .t-violet { color: var(--violet); }
+    .t-white  { color: var(--text) !important; }
+
+    .lead-text { color: #8da4c7; font-size: 1.05rem; line-height: 1.75; }
+
+    /* ─── GRID TEXTURE ───────────────────────────────────── */
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(45,212,191,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(45,212,191,0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ─── NAVBAR ─────────────────────────────────────────── */
+    .custom-navbar {
+      position: sticky; top: 0; z-index: 1050;
+      background-color: rgba(8,14,26,0.93) !important;
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border); padding: 14px 24px;
+    }
+    .navbar-brand { font-family: var(--font-title); font-weight: 800; font-size: 1.1rem; color: var(--text) !important; letter-spacing: 1px; text-decoration: none; }
+    .brand-accent { color: var(--neon); }
+    .nav-link { color: var(--muted) !important; font-size: 0.875rem; font-weight: 500; transition: color 0.2s; padding: 6px 12px !important; }
+    .nav-link:hover { color: var(--neon) !important; }
+
+    /* ─── VIEWS ──────────────────────────────────────────── */
+    .view { position: relative; z-index: 1; }
+    .d-none { display: none !important; }
+
+    .slide-container {
+      width: 100%; max-width: 1280px; margin: 0 auto; padding: 80px 24px;
+      min-height: calc(100vh - 80px); display: flex; flex-direction: column; justify-content: center;
+    }
+    .section-pad { padding: 90px 0; border-top: 1px solid var(--border); position: relative; z-index: 1; }
+
+    /* ─── TYPOGRAPHY ─────────────────────────────────────── */
+    .gradient-text {
+      background: linear-gradient(135deg, var(--violet) 20%, var(--neon) 80%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
+    }
+    .section-label { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--neon); margin-bottom: 12px; display: block; }
+
+    /* ─── BADGES & PILLS ─────────────────────────────────── */
+    .badge-lab {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(45,212,191,0.08); color: var(--neon); border: 1px solid rgba(45,212,191,0.25);
+      padding: 7px 16px; border-radius: 40px; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase;
+    }
+    .pill { display: inline-block; background: rgba(129,140,248,0.1); color: var(--violet); border: 1px solid rgba(129,140,248,0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; font-weight: 600; margin: 3px; }
+
+    /* ─── BUTTONS ────────────────────────────────────────── */
+    .btn-primary-lab {
+      background: linear-gradient(135deg, var(--violet), #6366f1); color: #fff; border-radius: 10px; padding: 14px 30px;
+      font-weight: 600; font-size: 0.9rem; border: none; box-shadow: 0 4px 20px rgba(129,140,248,0.25);
+      transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; display: inline-block; cursor: pointer;
+    }
+    .btn-primary-lab:hover, .btn-primary-lab:focus { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(129,140,248,0.45); color: #fff; outline: 2px solid var(--violet); outline-offset: 3px; }
+
+    .btn-outline-lab {
+      background: transparent; color: var(--text); border: 1.5px solid rgba(255,255,255,0.12);
+      border-radius: 10px; padding: 13px 28px; font-weight: 600; font-size: 0.9rem;
+      transition: all 0.2s; text-decoration: none; display: inline-block; cursor: pointer;
+    }
+    .btn-outline-lab:hover, .btn-outline-lab:focus { border-color: var(--neon); color: var(--neon); background: rgba(45,212,191,0.06); outline: 2px solid var(--neon); outline-offset: 3px; }
+
+    /* ─── TECH CARDS ─────────────────────────────────────── */
+    .tech-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 32px; height: 100%;
+      transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s; text-decoration: none !important; display: block; cursor: pointer; outline: none;
+    }
+    .tech-card:hover, .tech-card:focus-visible { transform: translateY(-5px); border-color: rgba(45,212,191,0.4); box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(45,212,191,0.1); }
+    .tech-card:focus-visible { outline: 2px solid var(--neon); }
+    .icon-box { font-size: 1.8rem; color: var(--neon); margin-bottom: 18px; display: block; }
+    .tech-card h3 { color: var(--text); font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
+    .tech-card p  { color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin: 0; }
+    .tech-card h6 { color: var(--text); font-weight: 700; margin-bottom: 8px; }
+
+    /* ─── CURSUS BLOCKS ──────────────────────────────────── */
+    .cursus-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 22px; padding: 36px; height: 100%; }
+    .cursus-block p  { color: #8da4c7; }
+    .cursus-block h5 { color: var(--text); }
+    .cursus-block h6 { color: var(--text); }
+
+    .module-step { border-left: 2px dashed var(--violet); padding-left: 22px; position: relative; margin-bottom: 28px; }
+    .module-step::before { content: ''; position: absolute; left: -8px; top: 5px; width: 14px; height: 14px; background: var(--neon); border-radius: 50%; box-shadow: 0 0 10px var(--neon); }
+    .module-step h6 { color: var(--text); font-size: 0.9rem; margin-bottom: 5px; font-weight: 700; }
+    .module-step p  { color: var(--muted); font-size: 0.84rem; margin: 0; }
+
+    /* ─── DID YOU KNOW ───────────────────────────────────── */
+    .did-you-know-box { background: linear-gradient(135deg, var(--bg-raised), var(--bg-card)); border: 1px solid rgba(45,212,191,0.2); border-left: 4px solid var(--neon); border-radius: 18px; padding: 32px; }
+    .did-you-know-box p { color: #8da4c7; }
+
+    /* ─── VIDEO ──────────────────────────────────────────── */
+    .video-wrap { position: relative; padding-bottom: calc(56.25% + 4px); border-radius: 20px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 24px 60px rgba(0,0,0,0.5); background: #000; }
+    .video-wrap iframe { position: absolute; top: -2px; left: -2px; width: calc(100% + 4px); height: calc(100% + 4px); border: 0; display: block; }
+
+    /* ─── FORMS ──────────────────────────────────────────── */
+    .form-control, .form-select { background-color: rgba(8,14,26,0.7); border: 1px solid rgba(255,255,255,0.1); color: var(--text) !important; padding: 14px 16px; border-radius: 10px; font-family: var(--font-body); transition: border-color 0.2s; }
+    .form-control::placeholder { color: var(--muted); opacity: 1; }
+    .form-control:focus, .form-select:focus { background-color: rgba(8,14,26,0.9); border-color: var(--neon); box-shadow: 0 0 0 3px rgba(45,212,191,0.1); color: var(--text) !important; outline: none; }
+    .form-select option { background: #0d1628; color: var(--text); }
+
+    /* ─── LAB LOGS ───────────────────────────────────────── */
+    .log-block { background: rgba(8,14,26,0.6); border: 1px solid var(--border); border-left: 3px solid var(--violet); border-radius: 16px; padding: 28px; }
+    .log-entry { padding: 18px; background: rgba(13,22,40,0.6); border: 1px solid var(--border); border-radius: 12px; transition: border-color 0.2s; }
+    .log-entry:hover { border-color: rgba(45,212,191,0.2); }
+    .log-tag { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+    .log-tag.neon   { color: var(--neon); }
+    .log-tag.violet { color: var(--violet); }
+    .log-tag.amber  { color: #fbbf24; }
+    .log-tag.sky    { color: #38bdf8; }
+    .log-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .log-dot.neon   { background: var(--neon);   box-shadow: 0 0 5px var(--neon); }
+    .log-dot.violet { background: var(--violet); box-shadow: 0 0 5px var(--violet); }
+    .log-dot.amber  { background: #fbbf24;       box-shadow: 0 0 5px #fbbf24; }
+    .log-dot.sky    { background: #38bdf8;        box-shadow: 0 0 5px #38bdf8; }
+    .log-entry-text { color: #8da4c7; font-size: 0.84rem; line-height: 1.65; margin: 0; }
+    .log-status { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); margin-top: 8px; }
+
+    /* ─── STACK TECH ─────────────────────────────────────── */
+    .stack-pill { padding: 10px 16px; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text); font-family: var(--font-mono); font-size: 0.78rem; text-align: center; transition: border-color 0.2s, color 0.2s; }
+    .stack-pill:hover { border-color: var(--neon); color: var(--neon); }
+
+    /* ─── SAVIEZ-VOUS ────────────────────────────────────── */
+    .sy-chip { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 14px; text-align: center; transition: border-color 0.25s, transform 0.25s; height: 100%; }
+    .sy-chip:hover { border-color: rgba(45,212,191,0.35); transform: translateY(-3px); }
+    .sy-chip-icon { font-size: 1.6rem; margin-bottom: 10px; }
+    .sy-chip-label { font-family: var(--font-title); font-size: 0.8rem; font-weight: 700; color: var(--text); margin-bottom: 5px; line-height: 1.3; }
+    .sy-chip-sub { font-size: 0.72rem; color: var(--muted); line-height: 1.4; }
+
+    .sy-callout { background: linear-gradient(135deg, rgba(13,22,40,0.9), rgba(8,14,26,0.95)); border: 1px solid rgba(45,212,191,0.18); border-left: 4px solid var(--neon); border-radius: 18px; padding: 30px; }
+    .sy-callout-tag { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--neon); margin-bottom: 16px; }
+    .sy-callout-body { color: #8da4c7; font-size: 0.9rem; line-height: 1.7; }
+    .sy-callout-body strong { color: var(--text); }
+
+    .sy-parts-list { background: rgba(8,14,26,0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .sy-parts-title { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+    .sy-part-row { display: flex; align-items: center; gap: 10px; font-size: 0.84rem; color: #8da4c7; padding: 5px 0; border-bottom: 1px solid var(--border); }
+    .sy-part-row:last-child { border-bottom: none; }
+    .sy-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .sy-dot.neon   { background: var(--neon);   box-shadow: 0 0 6px var(--neon); }
+    .sy-dot.violet { background: var(--violet); box-shadow: 0 0 6px var(--violet); }
+
+    /* ─── SURCYCLAGE ─────────────────────────────────────── */
+    .before-after { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .tag-before { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.73rem; font-weight: 600; font-family: var(--font-mono); }
+    .tag-after  { background: rgba(34,197,94,0.1);  color: #4ade80; border: 1px solid rgba(34,197,94,0.2);  border-radius: 20px; padding: 4px 12px; font-size: 0.73rem; font-weight: 600; font-family: var(--font-mono); }
+
+    /* ─── CALCULATEUR ────────────────────────────────────── */
+    .calc-result { background: rgba(8,14,26,0.8); border: 1px solid rgba(45,212,191,0.2); border-radius: 10px; padding: 16px; font-family: var(--font-mono); font-size: 1.1rem; color: var(--neon); text-align: center; margin-top: 16px; min-height: 54px; display: flex; align-items: center; justify-content: center; }
+
+    /* ─── TERMINAL ───────────────────────────────────────── */
+    .terminal-wrap { background: #020617; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; font-family: var(--font-mono); box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+    .term-bar { display: flex; align-items: center; gap: 7px; margin-bottom: 16px; }
+    .term-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .term-dot.red    { background: #ff5f57; }
+    .term-dot.yellow { background: #febc2e; }
+    .term-dot.green  { background: #28c840; }
+    .term-title { flex: 1; text-align: center; font-size: 0.72rem; color: var(--muted); letter-spacing: 1px; }
+    .term-history { height: 180px; overflow-y: auto; color: #38bdf8; font-size: 0.83rem; margin-bottom: 12px; white-space: pre-wrap; line-height: 1.6; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+    .term-input-row { display: flex; align-items: center; border-top: 1px solid var(--border); padding-top: 12px; }
+    .term-prompt { color: var(--neon); margin-right: 10px; font-weight: 500; font-size: 0.85rem; white-space: nowrap; }
+    .term-field { background: transparent; border: none; color: #fff; flex-grow: 1; font-family: inherit; font-size: 0.85rem; caret-color: var(--neon); }
+    .term-field:focus { outline: none; }
+
+    /* ─── PLAN STEPS ─────────────────────────────────────── */
+    .plan-step { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 16px; transition: border-color 0.2s; }
+    .plan-step:hover { border-color: rgba(129,140,248,0.25); }
+    .plan-step-header { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+    .plan-num { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; background: rgba(129,140,248,0.12); color: var(--violet); border: 1px solid rgba(129,140,248,0.25); }
+    .plan-num.accent { background: rgba(45,212,191,0.12);   color: var(--neon);  border-color: rgba(45,212,191,0.25); }
+    .plan-num.gold   { background: rgba(245,158,11,0.12);   color: #fbbf24;      border-color: rgba(245,158,11,0.25); }
+    .plan-num.green  { background: rgba(34,197,94,0.12);    color: #4ade80;      border-color: rgba(34,197,94,0.25); }
+    .plan-step h5 { color: var(--text); font-size: 0.95rem; font-weight: 700; margin: 0; }
+    .plan-step p  { color: #8da4c7; font-size: 0.86rem; line-height: 1.65; margin: 0; }
+
+    /* ─── ANIMATIONS ─────────────────────────────────────── */
+    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    .anim-hero > * { opacity: 0; animation: fadeUp 0.6s ease forwards; }
+    .anim-hero > *:nth-child(1) { animation-delay: 0.1s; }
+    .anim-hero > *:nth-child(2) { animation-delay: 0.2s; }
+    .anim-hero > *:nth-child(3) { animation-delay: 0.35s; }
+    .anim-hero > *:nth-child(4) { animation-delay: 0.5s; }
+
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+    .live-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--neon); animation: pulse 2s ease-in-out infinite; margin-right:6px; }
+
+    /* ─── CURSOR GLOW ────────────────────────────────────── */
+    .cursor-glow { position: fixed; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(45,212,191,0.06) 0%, transparent 70%); pointer-events: none; transform: translate(-50%,-50%); transition: left 0.12s ease, top 0.12s ease; z-index: 0; }
+
+    /* ─── FOOTER ─────────────────────────────────────────── */
+    .site-footer { padding: 40px 24px; border-top: 1px solid var(--border); text-align: center; font-size: 0.82rem; color: var(--muted); position: relative; z-index: 1; }
+
+    /* ─── RESPONSIVE ─────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .slide-container { padding: 60px 16px; }
+      .section-pad { padding: 60px 0; }
+    }
+</style>
+<script>
+/**
+ * Easter Egg : Simulation de la console de Matrix
+ * Effet sonore "Toc-Toc" bas niveau + écriture séquentielle
+ */
+/**
+ * Easter Egg : Simulation de la console de Matrix
+ * Se déclenche au premier clic de l'utilisateur sur la page pour contourner le blocage audio.
+ */
+/**
+ * Easter Egg : Simulation de la console de Matrix
+ * Se déclenche au premier clic de l'utilisateur sur la page pour contourner le blocage audio.
+ */
+function initialiserEasterEggMatrice() {
+  const terminal = document.getElementById('term-history');
+  if (!terminal) return;
+
+  // Configuration des textes traduits
+  const lignes = [
+    "Réveille-toi, Néo...",
+    "La Matrice te possède.",
+    "Suis le lapin blanc."
+  ];
+
+  let ligneActuelle = 0;
+  let indexCaracteres = 0;
+
+  // Fonction audio pour générer un "Toc" mécanique (Web Audio API)
+  function emettreSonToc() {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(120, audioCtx.currentTime); 
+      
+      gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+
+      osc.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.06);
+    } catch (e) {
+      console.log("Le flux audio reste bloqué par le navigateur :", e);
+    }
+  }
+
+  // Effet machine à écrire
+  function taperTexte() {
+    if (ligneActuelle >= lignes.length) {
+      setTimeout(() => {
+        const blocFinal = document.createElement('div');
+        blocFinal.style.color = 'var(--neon)';
+        blocFinal.style.fontFamily = 'var(--font-mono)';
+        blocFinal.innerText = '\n[Système prêt. Connexion établie.]\n';
+        terminal.appendChild(blocFinal);
+        terminal.scrollTop = terminal.scrollHeight;
+      }, 1000);
+      return;
+    }
+
+    if (indexCaracteres === 0) {
+      const nouvelleLigne = document.createElement('div');
+      nouvelleLigne.id = `matrix-line-${ligneActuelle}`;
+      nouvelleLigne.style.color = '#38bdf8'; 
+      nouvelleLigne.style.fontFamily = 'var(--font-mono)';
+      nouvelleLigne.style.marginBottom = '8px';
+      terminal.appendChild(nouvelleLigne);
+      
+      // Doubles clics mécaniques au début de chaque ligne
+      emettreSonToc();
+      setTimeout(emettreSonToc, 150); 
+    }
+
+    const conteneurLigne = document.getElementById(`matrix-line-${ligneActuelle}`);
+    if (conteneurLigne) {
+      conteneurLigne.innerText += lignes[ligneActuelle][indexCaracteres];
+    }
+
+    indexCaracteres++;
+    terminal.scrollTop = terminal.scrollHeight;
+
+    if (indexCaracteres < lignes[ligneActuelle].length) {
+      setTimeout(taperTexte, 120); 
+    } else {
+      ligneActuelle++;
+      indexCaracteres = 0;
+      setTimeout(taperTexte, 1800); 
+    }
+  }
+
+  // Attendre une interaction pour libérer l'AudioContext
+  function demarrerSurInteraction() {
+    // Vide le texte initial du terminal pour laisser place à l'effet Matrix
+    terminal.textContent = '';
+    
+    // Lance l'animation
+    setTimeout(taperTexte, 500);
+    
+    // Supprime l'écouteur pour éviter de relancer le script aux clics suivants
+    document.removeEventListener('click', demarrerSurInteraction);
+  }
+
+  // Écoute le premier clic sur la page
+  document.addEventListener('click', demarrerSurInteraction);
+}
+
+document.addEventListener('DOMContentLoaded', initialiserEasterEggMatrice);
+</script>
+</head>
+
+<body>
+  <div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
+
+  <!-- ─── NAVBAR ─────────────────────────────────────────── -->
+  <nav class="navbar navbar-expand-lg custom-navbar" aria-label="Navigation principale">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#" onclick="showSection('main-wrapper'); return false;" aria-label="Accueil Core Labs">
+        <i class="bi bi-terminal-fill me-2" style="color:var(--neon)" aria-hidden="true"></i>CORE<span class="brand-accent">_</span>LABS
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Basculer le menu">
+        <span class="navbar-toggler-icon" style="filter:invert(1);"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav gap-1">
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('main-wrapper'); return false;">Accueil</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('main-wrapper'); scrollToId('formations-list'); return false;">Ateliers</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('cursus-detail'); return false;">Cursus C++</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('planification-detail'); return false;">Planification</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('encours-detail'); return false;">En cours</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('main-wrapper'); scrollToId('hardware-surcycle'); return false;">Surcyclage</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('main-wrapper'); scrollToId('support-detail'); return false;">Assistance</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('main-wrapper'); scrollToId('contact-detail'); return false;">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════
+       VIEW 1 — MAIN
+  ════════════════════════════════════════════════════════ -->
+  <main id="main-wrapper" class="view" aria-label="Contenu principal">
+
+    <!-- HERO -->
+    <section class="slide-container" id="home">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-7 text-center text-lg-start anim-hero">
+          <span class="badge-lab mb-4"><i class="bi bi-cpu" aria-hidden="true"></i>Hardware & Software Mastery</span>
+          <h1 class="display-3 fw-bold mb-3 lh-1">Du code au<br><span class="gradient-text">bare-metal.</span></h1>
+          <p class="lead-text mb-5">Dominez l'IoT, la mécatronique et la sécurité embarquée.<br>Formations et support technique sur-mesure pour les esprits rigoureux.</p>
+          <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+            <button onclick="showSection('cursus-detail')" class="btn-primary-lab" type="button">Découvrir nos cursus</button>
+            <button onclick="showSection('planification-detail')" class="btn-outline-lab" type="button">Planifier un projet</button>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="video-wrap" aria-label="Vidéo d'introduction Core Labs">
+            <iframe src="https://www.youtube.com/embed/nGB94HbeJOg?start=19"
+              title="Vidéo de présentation Core Labs"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SAVIEZ-VOUS -->
+    <section class="section-pad" id="saviez-vous" aria-labelledby="sy-title">
+      <div class="container">
+        <div class="text-center mb-5">
+          <span class="section-label">Saviez-vous ?</span>
+          <h2 id="sy-title" class="h2 fw-bold mb-3">Vos appareils domestiques sont des<br><span class="gradient-text">mines de composantes</span></h2>
+          <p class="lead-text mx-auto" style="max-width:640px;">Électroménagers, chauffe-eau, thermostats, machines à laver — ces appareils renferment des composantes électroniques de qualité industrielle prêtes à alimenter vos prochains projets embarqués.</p>
+        </div>
+        <div class="row g-3 mb-5">
+          <div class="col-6 col-md-4 col-lg-2"><div class="sy-chip"><div class="sy-chip-icon" style="color:var(--neon)"><i class="bi bi-droplet-half" aria-hidden="true"></i></div><div class="sy-chip-label">Électro-<br>vannes</div><div class="sy-chip-sub">Contrôle de fluide 12–24 V</div></div></div>
+          <div class="col-6 col-md-4 col-lg-2"><div class="sy-chip"><div class="sy-chip-icon" style="color:var(--violet)"><i class="bi bi-thermometer-half" aria-hidden="true"></i></div><div class="sy-chip-label">Capteurs<br>NTC/PTC</div><div class="sy-chip-sub">Température & débit</div></div></div>
+          <div class="col-6 col-md-4 col-lg-2"><div class="sy-chip"><div class="sy-chip-icon" style="color:var(--neon)"><i class="bi bi-lightning-charge" aria-hidden="true"></i></div><div class="sy-chip-label">Circuits<br>d'alim.</div><div class="sy-chip-sub">Régulateurs & ponts H</div></div></div>
+          <div class="col-6 col-md-4 col-lg-2"><div class="sy-chip"><div class="sy-chip-icon" style="color:var(--violet)"><i class="bi bi-fan" aria-hidden="true"></i></div><div class="sy-chip-label">Pompes<br>DC/AC</div><div class="sy-chip-sub">Drainage & circulation</div></div></div>
+          <div class="col-6 col-md-4 col-lg-2"><div class="sy-chip"><div class="sy-chip-icon" style="color:var(--neon)"><i class="bi bi-cpu" aria-hidden="true"></i></div><div class="sy-chip-label">Trans-<br>istors</div><div class="sy-chip-sub">MOSFETs & BJT de puissance</div></div></div>
+          <div class="col-6 col-md-4 col-lg-2"><div class="sy-chip"><div class="sy-chip-icon" style="color:var(--violet)"><i class="bi bi-motherboard" aria-hidden="true"></i></div><div class="sy-chip-label">Relais &<br>triacs</div><div class="sy-chip-sub">Commutation de charge</div></div></div>
+        </div>
+        <div class="sy-callout">
+          <div class="sy-callout-tag"><i class="bi bi-recycle me-2" aria-hidden="true"></i>RÉCUPÉRATION INTELLIGENTE</div>
+          <div class="row align-items-center g-4 mt-1">
+            <div class="col-lg-7">
+              <p class="sy-callout-body mb-3">Un lave-linge hors-service contient typiquement un <strong>moteur brushless</strong>, plusieurs <strong>capteurs de niveau</strong>, une <strong>électrovanne d'admission</strong> et un <strong>module de puissance triac</strong> — l'équivalent de dizaines de dollars en composantes réutilisables.</p>
+              <p class="sy-callout-body mb-0">Avant de tout jeter, un atelier de démontage guidé avec Core Labs vous permet d'identifier, tester et cataloguer chaque pièce récupérable. <strong style="color:var(--neon)">Zéro gaspillage, maximum d'apprentissage.</strong></p>
+            </div>
+            <div class="col-lg-5">
+              <div class="sy-parts-list">
+                <div class="sy-parts-title">Appareils à fort potentiel</div>
+                <div class="sy-part-row"><span class="sy-dot neon"></span>Lave-linge / sèche-linge</div>
+                <div class="sy-part-row"><span class="sy-dot violet"></span>Chauffe-eau électrique</div>
+                <div class="sy-part-row"><span class="sy-dot neon"></span>Thermostat intelligent</div>
+                <div class="sy-part-row"><span class="sy-dot violet"></span>Pompe à chaleur</div>
+                <div class="sy-part-row"><span class="sy-dot neon"></span>Lave-vaisselle</div>
+                <div class="sy-part-row"><span class="sy-dot violet"></span>Imprimante / scanner</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAB LOGS — MIS À JOUR -->
+    <section class="section-pad" aria-labelledby="loglabel">
+      <div class="container">
+        <div class="log-block">
+
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+            <div>
+              <span class="section-label" id="loglabel">Lab Logs</span>
+              <h2 class="h5 fw-bold mb-0 t-white">
+                <i class="bi bi-journal-code me-2" style="color:var(--violet)" aria-hidden="true"></i>
+                Flux d'activités en direct
+              </h2>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="live-dot" aria-hidden="true"></span>
+              <span style="font-family:var(--font-mono); font-size:0.7rem; color:var(--neon);">LIVE</span>
+              <span style="background:rgba(129,140,248,0.1); color:var(--violet); border:1px solid rgba(129,140,248,0.2); border-radius:20px; padding:4px 14px; font-family:var(--font-mono); font-size:0.7rem; margin-left:8px;">Node: Valleyfield</span>
+            </div>
+          </div>
+
+          <div class="row g-3">
+
+            <!-- LOG #048 — VAN-HUB -->
+            <div class="col-md-6">
+              <div class="log-entry">
+                <div class="log-tag neon">
+                  <span class="log-dot neon"></span>[LOG #048] — VAN-HUB / Réseau Sensoriel
+                </div>
+                <p class="log-entry-text">Intégration réussie d'un bus I2C multi-capteurs (température, humidité, CO₂) sur nœud ESP32. Routine d'acquisition cyclique non-bloquante validée. Données routées vers interface Flask locale en temps réel.</p>
+                <div class="log-status">► STATUS: ACTIF &nbsp;|&nbsp; Plateforme: ESP32-WROOM &nbsp;|&nbsp; 2026-06-01</div>
+              </div>
+            </div>
+
+            <!-- LOG #047 — FlightGear IFR -->
+            <div class="col-md-6">
+              <div class="log-entry">
+                <div class="log-tag sky">
+                  <span class="log-dot sky"></span>[LOG #047] — IFR Avionics / FlightGear
+                </div>
+                <p class="log-entry-text">Scripts d'extraction Telnet asynchrones opérationnels sur FlightGear 2024. Supervision du pilote automatique en capture d'alignement ILS validée sur Cessna Citation II et Learjet 45. Latence logicielle négligeable.</p>
+                <div class="log-status">► STATUS: ACTIF &nbsp;|&nbsp; Stack: Python asyncio &nbsp;|&nbsp; 2026-05-28</div>
+              </div>
+            </div>
+
+            <!-- LOG #045 — Serveur Flask -->
+            <div class="col-md-6">
+              <div class="log-entry">
+                <div class="log-tag violet">
+                  <span class="log-dot violet"></span>[LOG #045] — Stabilité Serveur Local
+                </div>
+                <p class="log-entry-text">Migration réussie d'une infrastructure d'acquisition Flask sur réseau d'adresses IP fixes Wi-Fi. Latence réduite à un seuil négligeable. Architecture désormais entièrement hors-cloud.</p>
+                <div class="log-status">► STATUS: COMPLÉTÉ &nbsp;|&nbsp; Stack: Flask/SQLite &nbsp;|&nbsp; 2026-05-15</div>
+              </div>
+            </div>
+
+            <!-- LOG #042 — Deep Sleep -->
+            <div class="col-md-6">
+              <div class="log-entry">
+                <div class="log-tag amber">
+                  <span class="log-dot amber"></span>[LOG #042] — Optimisation Énergétique
+                </div>
+                <p class="log-entry-text">Tests de boucle Deep Sleep concluants sur ESP32 et ESP8266. Consommation validée à ~15 µA en veille profonde. Autonomie théorique de 247 jours atteinte sur batterie LiFePO₄ 3400 mAh.</p>
+                <div class="log-status">► STATUS: COMPLÉTÉ &nbsp;|&nbsp; Plateforme: ESP32 / ESP8266 &nbsp;|&nbsp; 2026-05-03</div>
+              </div>
+            </div>
+
+          </div><!-- /.row -->
+
+          <div class="text-center mt-4">
+            <a href="#" onclick="showSection('encours-detail'); return false;" class="btn-outline-lab" style="padding:10px 24px; font-size:0.85rem;">
+              <i class="bi bi-activity me-2" aria-hidden="true"></i>Voir tous les projets en cours →
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- QUICK NAV + ATELIERS -->
+    <section class="section-pad" id="formations-list" aria-labelledby="ateliers-title">
+      <div class="container">
+        <div class="text-center mb-5">
+          <span class="section-label">Explorer</span>
+          <h2 id="ateliers-title" class="h2 fw-bold">Nos domaines d'expertise</h2>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <a href="#" onclick="showSection('cursus-detail'); return false;" class="tech-card" role="button" tabindex="0" aria-label="Apprendre Arduino C++">
+              <span class="icon-box"><i class="bi bi-braces-asterisk" aria-hidden="true"></i></span>
+              <h3>Apprendre Arduino C++ →</h3>
+              <p>Programmation orientée objet, gestion des registres et architectures AVR/ESP.</p>
+            </a>
+          </div>
+          <div class="col-md-4">
+            <a href="#" onclick="showSection('planification-detail'); return false;" class="tech-card" role="button" tabindex="0" aria-label="Planification et support">
+              <span class="icon-box"><i class="bi bi-gear-wide-connected" aria-hidden="true"></i></span>
+              <h3>Planification & Support →</h3>
+              <p>Développement de firmwares, intégration de microcontrôleurs et collaborations.</p>
+            </a>
+          </div>
+          <div class="col-md-4">
+            <a href="#" onclick="showSection('encours-detail'); return false;" class="tech-card" role="button" tabindex="0" aria-label="Projets en cours">
+              <span class="icon-box"><i class="bi bi-activity" aria-hidden="true"></i></span>
+              <h3>Projets en cours →</h3>
+              <p>Découvrez les développements actifs du lab : Télémétrie VAN-HUB et Navigation IFR.</p>
+            </a>
+          </div>
+        </div>
+        <div class="row g-4 mt-2">
+          <div class="col-md-4">
+            <div class="tech-card">
+              <span class="icon-box"><i class="bi bi-cpu" aria-hidden="true"></i></span>
+              <h3>IoT & Mécatronique</h3>
+              <p>Concevez des systèmes embarqués mobiles et collectez des données physiques en temps réel.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="tech-card">
+              <span class="icon-box" style="color:var(--violet)"><i class="bi bi-recycle" aria-hidden="true"></i></span>
+              <h3>Philosophie Low-Tech</h3>
+              <p>Faire mieux avec moins. Conception et maintenance de systèmes électroniques réparables et durables.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="tech-card">
+              <span class="icon-box"><i class="bi bi-sun" aria-hidden="true"></i></span>
+              <h3>Énergie & Solaire</h3>
+              <p>Maîtrisez l'alimentation autonome, la régulation de charge et le monitoring de parcs batteries.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CALCULATEUR -->
+    <section class="section-pad" id="calculateur-autonomie" aria-labelledby="calc-title">
+      <div class="container">
+        <div class="row g-5 align-items-center">
+          <div class="col-lg-5">
+            <span class="section-label">Outil Lab / Estimation</span>
+            <h2 id="calc-title" class="h2 fw-bold mb-3">Estimer l'autonomie de votre <span class="gradient-text">nœud IoT</span></h2>
+            <p class="lead-text mb-0">Le choix et la configuration des cycles de veille influencent drastiquement la longévité de vos batteries. Ajustez vos paramètres pour découvrir la durée de fonctionnement théorique.</p>
+          </div>
+          <div class="col-lg-7">
+            <div class="cursus-block">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label t-muted small" for="calc-capacity">Capacité Batterie (mAh)</label>
+                  <input type="number" id="calc-capacity" class="form-control" value="2500" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label t-muted small" for="calc-awake">Consommation en Éveil (mA)</label>
+                  <input type="number" id="calc-awake" class="form-control" value="80" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label t-muted small" for="calc-sleep">Consommation Deep Sleep (µA)</label>
+                  <input type="number" id="calc-sleep" class="form-control" value="15" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label t-muted small" for="calc-time">Temps Éveillé par heure (sec)</label>
+                  <input type="number" id="calc-time" class="form-control" value="10" />
+                </div>
+                <div class="col-12">
+                  <button class="btn-primary-lab w-100" onclick="calculateBatteryLife()" type="button">
+                    <i class="bi bi-calculator me-2" aria-hidden="true"></i>Calculer l'autonomie théorique
+                  </button>
+                  <div class="calc-result" id="calc-result" aria-live="polite">Résultat estimé : -- jours</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HARDWARE SURCYCLÉ -->
+    <section class="section-pad" id="hardware-surcycle" aria-labelledby="surcycle-title">
+      <div class="container">
+        <div class="text-center mb-5">
+          <span class="section-label">Éco-conception & Valorisation</span>
+          <h2 id="surcycle-title" class="h2 fw-bold mb-3">Le Hardware <span class="gradient-text">Surcyclé</span></h2>
+          <p class="lead-text mx-auto" style="max-width:580px;">Revaloriser l'existant plutôt que de surconsommer du silicium neuf. Exemples concrets d'ingénierie circulaire appliquée.</p>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="cursus-block">
+              <div class="before-after">
+                <span class="tag-before">Avant : Alimentation PC ATX</span>
+                <i class="bi bi-arrow-right" style="color:var(--neon)" aria-hidden="true"></i>
+                <span class="tag-after">Après : Lab Power Station</span>
+              </div>
+              <h5>Alimentation de laboratoire stable</h5>
+              <p class="small">Transformation complète de blocs d'alimentation PC mis au rebut en stations d'alimentation de paillasse stables multi-tensions (3.3V, 5V, 12V) avec protections intégrées.</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="cursus-block">
+              <div class="before-after">
+                <span class="tag-before">Avant : Vieux Routeur ISP</span>
+                <i class="bi bi-arrow-right" style="color:var(--neon)" aria-hidden="true"></i>
+                <span class="tag-after">Après : Passerelle IoT locale</span>
+              </div>
+              <h5>Nœud de communication autonome</h5>
+              <p class="small">Récupération des modules radio et des processeurs de vieux routeurs pour créer des serveurs de collecte de données environnementales en circuit fermé.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STACK TECH -->
+    <section class="section-pad" aria-labelledby="stack-title">
+      <div class="container text-center">
+        <span class="section-label">Zéro cloud propriétaire / Souveraineté locale</span>
+        <h2 id="stack-title" class="h4 fw-bold mb-4">Notre Stack Technologique</h2>
+        <div class="row g-3 justify-content-center">
+          <div class="col-6 col-md-2"><div class="stack-pill">C++ Bare-Metal</div></div>
+          <div class="col-6 col-md-2"><div class="stack-pill">FreeRTOS</div></div>
+          <div class="col-6 col-md-2"><div class="stack-pill">Python / Flask</div></div>
+          <div class="col-6 col-md-2"><div class="stack-pill">ESP-NOW & LoRa</div></div>
+          <div class="col-6 col-md-2"><div class="stack-pill">SQLite / Local</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUPPORT -->
+    <section class="section-pad" id="support-detail" aria-labelledby="support-title">
+      <div class="container">
+        <div class="text-center mb-5">
+          <span class="section-label">02 // Assistance Refuge</span>
+          <h2 id="support-title" class="h2 fw-bold mb-3">Support Technique & <span class="gradient-text">Maintenance</span></h2>
+          <p class="lead-text mx-auto" style="max-width:540px;">Assurer la continuité opérationnelle de vos installations et parcs informatiques.</p>
+        </div>
+        <div class="row g-4 mb-5">
+          <div class="col-md-3"><div class="tech-card"><span class="icon-box"><i class="bi bi-pc-display" aria-hidden="true"></i></span><h6>Postes Fixes & Portables</h6><p>Mise à niveau matérielle, optimisation et nettoyage complet de l'OS.</p></div></div>
+          <div class="col-md-3"><div class="tech-card"><span class="icon-box" style="color:var(--violet)"><i class="bi bi-tools" aria-hidden="true"></i></span><h6>Dépannage Matériel</h6><p>Diagnostic approfondi, réparation de cartes et soudure de composants.</p></div></div>
+          <div class="col-md-3"><div class="tech-card"><span class="icon-box"><i class="bi bi-wifi" aria-hidden="true"></i></span><h6>Réseaux Locaux</h6><p>Gestion d'adresses IP fixes, optimisation et déploiement de réseaux Wi-Fi.</p></div></div>
+          <div class="col-md-3"><div class="tech-card"><span class="icon-box" style="color:var(--violet)"><i class="bi bi-hdd" aria-hidden="true"></i></span><h6>Extraction de Données</h6><p>Récupération et transfert de fichiers critiques depuis des supports endommagés.</p></div></div>
+        </div>
+        <div class="did-you-know-box">
+          <h4 class="fw-bold mb-3" style="color:var(--neon); font-family:var(--font-mono); font-size:0.8rem; letter-spacing:2px;">⚡ UN BUG ?</h4>
+          <p class="mb-3">La majorité des bugs embarqués critiques surviennent lors de la gestion des interruptions imbriquées et des états de course sur bus partagés — pas dans la logique applicative.</p>
+          <p class="mb-0">Notre approche combine analyse statique du code, inspection oscilloscopique en temps réel et simulation HIL pour isoler les défauts à la source.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TERMINAL -->
+    <section class="section-pad" aria-labelledby="terminal-label">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="text-center mb-4">
+              <span class="section-label" id="terminal-label">Interface de liaison</span>
+              <h2 class="h4 fw-bold">Terminal Sécurisé Core Labs</h2>
+            </div>
+            <div class="terminal-wrap">
+              <div class="term-bar">
+                <span class="term-dot red"></span>
+                <span class="term-dot yellow"></span>
+                <span class="term-dot green"></span>
+                <span class="term-title">core_lab@io_node — bash</span>
+              </div>
+              <div class="term-history" id="term-history">Core Labs Secure Terminal v1.0.2
+Tapez 'help' pour lister les requêtes disponibles.</div>
+              <div class="term-input-row">
+                <span class="term-prompt">core_lab@io_node:~$</span>
+                <input type="text" id="term-field" class="term-field" autocomplete="off" aria-label="Commande terminal" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="section-pad" id="contact-detail" aria-labelledby="contact-title">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-7 text-center mb-5">
+            <span class="section-label">03 // Formulaire Réseau</span>
+            <h2 id="contact-title" class="h2 fw-bold mb-3">Initialiser une <span class="gradient-text">connexion</span></h2>
+            <p class="lead-text">Projet, formation, collaboration ou simple question technique — on répond.</p>
+          </div>
+        </div>
+        <div class="row justify-content-center">
+          <div class="col-lg-6">
+            <div class="cursus-block">
+              <div class="mb-3">
+                <label for="contact-name" class="form-label t-muted small">Nom / Identifiant</label>
+                <input type="text" id="contact-name" class="form-control" placeholder="Nom / Identifiant" autocomplete="name" />
+              </div>
+              <div class="mb-3">
+                <label for="contact-email" class="form-label t-muted small">Adresse électronique</label>
+                <input type="email" id="contact-email" class="form-control" placeholder="Adresse électronique de liaison" autocomplete="email" />
+              </div>
+              <div class="mb-4">
+                <label for="contact-msg" class="form-label t-muted small">Spécifications</label>
+                <textarea id="contact-msg" class="form-control" rows="5" placeholder="Décrivez votre besoin technique ou les spécifications de votre projet…"></textarea>
+              </div>
+              <button type="button" class="btn-primary-lab w-100" onclick="handleContactSubmit()">
+                <i class="bi bi-chat-left-code me-2" aria-hidden="true"></i>Envoyer les spécifications
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════
+       VIEW 2 — CURSUS C++
+  ════════════════════════════════════════════════════════ -->
+  <section id="cursus-detail" class="view d-none" aria-label="Cursus C++ embarqué">
+    <div class="container" style="padding:80px 24px;">
+      <button onclick="showSection('main-wrapper')" class="btn-outline-lab mb-5 d-inline-flex align-items-center gap-2" type="button">
+        <i class="bi bi-arrow-left" aria-hidden="true"></i> Retour
+      </button>
+      <div class="text-center mb-5">
+        <span class="section-label">Cursus Officiel</span>
+        <h2 class="display-5 fw-bold mb-3">Ingénierie IoT & <span class="gradient-text">Embarqué</span></h2>
+      </div>
+      <div class="did-you-know-box mb-5">
+        <h3 class="h5 fw-bold mb-3"><i class="bi bi-recycle me-2" style="color:var(--neon)" aria-hidden="true"></i><span class="t-white">L'Art du Surcyclage Électronique</span></h3>
+        <p class="mb-0">Apprenez à transformer vos déchets technologiques en outils de mesure. Concevez une alimentation de laboratoire stable depuis un vieux bloc d'alimentation PC ATX ou redonnez vie à des électrovannes récupérées pour vos projets de domotique.</p>
+      </div>
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="cursus-block">
+            <h4 class="gradient-text mb-4">Option A — Fondations Embarquées</h4>
+            <div class="module-step"><h6>M01 — Électronique Appliquée</h6><p>Lois d'Ohm, signaux PWM et circuits de protection des entrées/sorties.</p></div>
+            <div class="module-step"><h6>M02 — Syntaxe C++ Avancée</h6><p>Maîtrise des pointeurs, structures de données et gestion du temps non-bloquante.</p></div>
+            <div class="module-step"><h6>M03 — Architectures Microcontrôleurs</h6><p>Registres internes, traitement des interruptions matérielles et debouncing de capteurs.</p></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="cursus-block">
+            <h4 class="gradient-text mb-4">Option B — Systèmes & Réseaux</h4>
+            <div class="module-step"><h6>M04 — Autonomie Énergétique</h6><p>Lecture de ponts diviseurs de tension, étalonnage CAN et optimisation du mode Deep Sleep.</p></div>
+            <div class="module-step"><h6>M05 — Protocoles de Communication</h6><p>Mise en œuvre et chaînage des bus de données matériels I2C, SPI et liaisons UART.</p></div>
+            <div class="module-step"><h6>M06 — Réseaux & Télécommunications</h6><p>Serveurs locaux Wi-Fi (HTTP/UDP), communication ESP-NOW et introduction au réseau maillé LoRa.</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="text-center mt-5">
+        <button onclick="showSection('planification-detail')" class="btn-primary-lab" type="button">S'inscrire / Planifier →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       VIEW 3 — PLANIFICATION
+  ════════════════════════════════════════════════════════ -->
+  <section id="planification-detail" class="view d-none" aria-label="Planification de projet">
+    <div class="container" style="padding:80px 24px;">
+      <button onclick="showSection('main-wrapper')" class="btn-outline-lab mb-5 d-inline-flex align-items-center gap-2" type="button">
+        <i class="bi bi-arrow-left" aria-hidden="true"></i> Retour
+      </button>
+      <div class="text-center mb-5">
+        <span class="section-label">Ingénierie & Co-Développement</span>
+        <h2 class="display-5 fw-bold mb-3">Planification de Projet <span class="gradient-text">& Support</span></h2>
+        <p class="lead-text mx-auto" style="max-width:600px;">Déployez vos architectures embarquées et collaborez sur des innovations technologiques prometteuses à des conditions avantageuses.</p>
+      </div>
+      <div class="row g-4">
+        <div class="col-lg-7">
+          <div class="plan-step"><div class="plan-step-header"><div class="plan-num">01</div><h5>Vision Globale : Du Concept au Silicium</h5></div><p>Nous structurons vos concepts théoriques en architectures logicielles et matérielles concrètes. Notre analyse préalable permet de définir les arbres de décision et de valider les schémas synoptiques en amont du prototypage.</p></div>
+          <div class="plan-step" style="border-left:3px solid var(--violet);"><div class="plan-step-header"><div class="plan-num">02</div><h5><i class="bi bi-braces me-2" style="color:var(--violet)" aria-hidden="true"></i>Support Écosystème Arduino C++</h5></div><p>Assistance complète pour l'écriture de bibliothèques orientées objet, l'optimisation de l'empreinte mémoire sur puces AVR et le débogage de codes complexes.</p></div>
+          <div class="plan-step" style="border-left:3px solid var(--neon);"><div class="plan-step-header"><div class="plan-num accent">03</div><h5><i class="bi bi-cpu me-2" style="color:var(--neon)" aria-hidden="true"></i>Architecture ESP32 Dual-Core</h5></div><p>Déploiement de tâches asynchrones réparties sur les deux cœurs de l'ESP32 via FreeRTOS. Configuration des piles de connectivité sécurisées pour la gestion de capteurs distants.</p></div>
+          <div class="plan-step"><div class="plan-step-header"><div class="plan-num">04</div><h5>Optimisation de Modules ESP8266</h5></div><p>Stabilisation des connexions réseau TCP/IP, réduction de la consommation électrique et mise en place de scripts d'acquisition de données compacts et résilients.</p></div>
+          <div class="plan-step" style="background:linear-gradient(135deg,rgba(129,140,248,0.05),rgba(45,212,191,0.03)); border-color:rgba(45,212,191,0.2);"><div class="plan-step-header"><div class="plan-num gold">05</div><h5><i class="bi bi-rocket-takeoff-fill me-2" style="color:#fbbf24" aria-hidden="true"></i>Synergie & Projets Prometteurs</h5></div><p>Nous aimons nous impliquer dans les projets innovants (télémétrie, robotique, drones, réseaux décentralisés). Nous offrons nos compétences comme partenaire technique clé.</p></div>
+          <div class="plan-step"><div class="plan-step-header"><div class="plan-num">06</div><h5>Architecture Logicielle Non-Bloquante</h5></div><p>Conception de firmwares basés sur des machines à états finis exécutées de façon cyclique et fluide. Bannissement total des fonctions bloquantes au profit d'ordonnanceurs temporels réactifs.</p></div>
+          <div class="plan-step"><div class="plan-step-header"><div class="plan-num">07</div><h5>Réseaux de Données Privés & Serveurs Locaux</h5></div><p>Priorité à la confidentialité et à l'indépendance cloud. Routage des flux de télémétrie vers des serveurs d'acquisition locaux (Flask/Python) hébergés sur votre propre réseau sécurisé.</p></div>
+          <div class="plan-step"><div class="plan-step-header"><div class="plan-num">08</div><h5>Sourcing Éco-Conçu & Matériel Revalorisé</h5></div><p>Intégration de composants issus de l'économie circulaire (moteurs, alimentations modifiées, capteurs industriels revalorisés) afin de limiter les coûts de prototypage.</p></div>
+          <div class="plan-step"><div class="plan-step-header"><div class="plan-num">09</div><h5>Monitoring Énergétique & Calibrage CAN</h5></div><p>Planification des boucles d'acquisition pour la gestion d'énergie (suivi de tension de batteries, étalonnage de convertisseurs analogique-numérique et réduction de la consommation en veille).</p></div>
+          <div class="plan-step"><div class="plan-step-header"><div class="plan-num">10</div><h5>Gestion Inter-Composants & Bus Matériels</h5></div><p>Mise en place et analyse des signaux pour I2C, bus SPI à haute vitesse et liaisons séries asynchrones (UART).</p></div>
+          <div class="plan-step" style="border-left:3px solid #4ade80;"><div class="plan-step-header"><div class="plan-num green">11</div><h5 style="color:#4ade80">Tarifs Équitables & Accessibles</h5></div><p>L'accès à l'ingénierie technique de pointe ne devrait pas être limité par des budgets inaccessibles. Grille tarifaire avantageuse et proportionnelle à la complexité réelle de chaque projet.</p></div>
+          <div class="plan-step"><div class="plan-step-header"><div class="plan-num">12</div><h5>Livrables Documentés & Transfert Technologique</h5></div><p>Codes sources intégralement commentés, schémas de câblage détaillés et accompagnement personnalisé pour garantir votre parfaite autonomie lors des phases de maintenance.</p></div>
+          <div class="cursus-block text-center mt-4" style="background:linear-gradient(135deg,var(--bg-raised),var(--bg-card)); border:1px dashed rgba(129,140,248,0.35);">
+            <span class="section-label">13</span>
+            <h3 class="h4 fw-bold mb-3 t-white">Établir un canal de communication</h3>
+            <p class="lead-text mb-4 mx-auto" style="max-width:500px;">Prêt à valider votre schéma d'implantation ou à optimiser le code de votre microcontrôleur ? Contactez notre laboratoire dès aujourd'hui.</p>
+            <button onclick="showSection('main-wrapper'); scrollToId('contact-detail');" class="btn-primary-lab" type="button">
+              <i class="bi bi-chat-left-code me-2" aria-hidden="true"></i>Soumettre mon idée de projet
+            </button>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="cursus-block" style="position:sticky; top:100px;">
+            <h3 class="h5 fw-bold mb-4 t-white">Décrire votre projet</h3>
+            <div class="row g-3">
+              <div class="col-12"><label for="plan-name" class="form-label t-muted small">Nom / Organisation</label><input type="text" id="plan-name" class="form-control" placeholder="Ex: Acme Industries" autocomplete="organization" /></div>
+              <div class="col-12"><label for="plan-email" class="form-label t-muted small">Courriel</label><input type="email" id="plan-email" class="form-control" placeholder="vous@domaine.com" autocomplete="email" /></div>
+              <div class="col-12"><label for="plan-type" class="form-label t-muted small">Type de projet</label><select id="plan-type" class="form-control"><option value="" disabled selected>Sélectionner un type…</option><option value="proto">Prototypage IoT</option><option value="firmware">Développement firmware</option><option value="audit">Audit de code embarqué</option><option value="formation">Formation d'équipe</option><option value="autre">Autre</option></select></div>
+              <div class="col-12"><label for="plan-mcu" class="form-label t-muted small">Microcontrôleur ciblé</label><input type="text" id="plan-mcu" class="form-control" placeholder="Ex: STM32F4, ESP32-S3…" /></div>
+              <div class="col-12"><label for="plan-timeline" class="form-label t-muted small">Échéance estimée</label><input type="text" id="plan-timeline" class="form-control" placeholder="Ex: Q3 2026" /></div>
+              <div class="col-12"><label for="plan-desc" class="form-label t-muted small">Description du projet</label><textarea id="plan-desc" class="form-control" rows="4" placeholder="Contexte, contraintes, objectifs…"></textarea></div>
+              <div class="col-12"><button type="button" class="btn-primary-lab w-100" onclick="handlePlanSubmit()"><i class="bi bi-send me-2" aria-hidden="true"></i>Soumettre le projet</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       VIEW 4 — EN COURS
+  ════════════════════════════════════════════════════════ -->
+<section id="encours-detail" class="view d-none" aria-label="Projets en cours">
+    <div class="container" style="padding:80px 24px;">
+      <button onclick="showSection('main-wrapper')" class="btn-outline-lab mb-5 d-inline-flex align-items-center gap-2" type="button">
+        <i class="bi bi-arrow-left" aria-hidden="true"></i> Retour
+      </button>
+      <div class="text-center mb-5">
+        <span class="section-label">Chantiers du Laboratoire</span>
+        <h2 class="display-5 fw-bold mb-3">Recherche & <span class="gradient-text">Développements Actifs</span></h2>
+        <p class="lead-text mx-auto" style="max-width:620px;">Aperçu approfondi des travaux en cours d'exécution au lab : simulation avancée et télémétrie embarquée terrain.</p>
+      </div>
+
+      <div class="row g-5">
+
+        <div class="col-12">
+          <div class="cursus-block" style="border-color: rgba(56,189,248,0.2);">
+            <div class="d-flex align-items-center gap-3 flex-wrap mb-4">
+              <span class="badge-lab" style="background:rgba(56,189,248,0.08); color:#38bdf8; border-color:rgba(56,189,248,0.25);">
+                <i class="bi bi-airplane-fill me-2" aria-hidden="true"></i>Simulation & IFR Avionics
+              </span>
+              <span style="font-family:var(--font-mono); font-size:0.68rem; color:var(--muted); letter-spacing:1px;">LOG #047 — ACTIF</span>
+            </div>
+            <h4 class="fw-bold mb-2 t-white">Couplage FlightGear 2024 & Python</h4>
+            <p style="color:#8da4c7; margin-bottom:28px;">Interfaçage bas niveau et automatisation des procédures de vol aux instruments (IFR) pour la navigation de transport et d'affaires (Cessna Citation II, Learjet 45, Boeing 707).</p>
+
+            <div style="background:rgba(8,14,26,0.6); border:1px solid var(--border); border-radius:14px; padding:24px; margin-bottom:24px;">
+              <div style="font-family:var(--font-mono); font-size:0.68rem; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:16px;">
+                <i class="bi bi-diagram-3 me-2" aria-hidden="true"></i>Architecture du système cockpit
+              </div>
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-family:var(--font-mono); font-size:0.78rem;">
+                <span style="background:rgba(56,189,248,0.1); color:#38bdf8; border:1px solid rgba(56,189,248,0.2); border-radius:8px; padding:6px 12px;">FlightGear 2024</span>
+                <i class="bi bi-arrow-right" style="color:var(--muted);" aria-hidden="true"></i>
+                <span style="background:rgba(129,140,248,0.1); color:var(--violet); border:1px solid rgba(129,140,248,0.2); border-radius:8px; padding:6px 12px;">Telnet / JSON</span>
+                <i class="bi bi-arrow-right" style="color:var(--muted);" aria-hidden="true"></i>
+                <span style="background:rgba(45,212,191,0.1); color:var(--neon); border:1px solid rgba(45,212,191,0.2); border-radius:8px; padding:6px 12px;">Flask Python</span>
+                <i class="bi bi-arrow-right" style="color:var(--muted);" aria-hidden="true"></i>
+                <span style="background:rgba(251,191,36,0.1); color:#fbbf24; border:1px solid rgba(251,191,36,0.2); border-radius:8px; padding:6px 12px;">ESP8266 Wi-Fi</span>
+                <i class="bi bi-arrow-right" style="color:var(--muted);" aria-hidden="true"></i>
+                <span style="background:rgba(239,68,68,0.1); color:#f87171; border:1px solid rgba(239,68,68,0.2); border-radius:8px; padding:6px 12px;">Matrice LED</span>
+              </div>
+            </div>
+
+            <div class="row g-4">
+              <div class="col-md-6">
+                <div class="module-step">
+                  <h6>Extraction & Flux Telnet</h6>
+                  <p>Développement de scripts d'écoute asynchrones pour interroger les propriétés internes du simulateur en temps réel — altitudes, radiales, caps de l'assistant de vol. Interface JSON vers ESP8266 via Flask.</p>
+                </div>
+                <div class="module-step">
+                  <h6>Supervision Pilote Automatique</h6>
+                  <p>Analyse comportementale des asservissements de vol. Gestion fine des transitions de capture d'alignement ILS et suivi de trajectoire sans latence logicielle.</p>
+                </div>
+                <div class="module-step">
+                  <h6>Switch de contrôle cockpit</h6>
+                  <p>Commutateur physique relié à l'ESP8266 permettant de basculer les modes d'affichage et de toggler les états de navigation entre les instruments du cockpit maison.</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+
+                <div style="background:var(--bg); border:1px solid rgba(56,189,248,0.2); border-left:3px solid #38bdf8; border-radius:12px; padding:18px; margin-bottom:12px;">
+                  <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                    <i class="bi bi-tablet" style="color:#38bdf8; font-size:1.2rem;" aria-hidden="true"></i>
+                    <div>
+                      <div style="font-family:var(--font-mono); font-size:0.68rem; letter-spacing:1.5px; text-transform:uppercase; color:#38bdf8;">iPad 2 — Fin de vie surcyclé</div>
+                      <div style="font-size:0.82rem; font-weight:600; color:var(--text);">Indicateur d'Attitude (Gyroscope)</div>
+                    </div>
+                  </div>
+                  <p style="color:#8da4c7; font-size:0.82rem; margin:0;">Affichage de l'horizon artificiel en temps réel. Reçoit les données de tangage et roulis depuis Flask. Appareil recyclé, transformé en instrument cockpit dédié — zéro cloud, IP fixe.</p>
+                </div>
+
+                <div style="background:var(--bg); border:1px solid rgba(45,212,191,0.2); border-left:3px solid var(--neon); border-radius:12px; padding:18px; margin-bottom:12px;">
+                  <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                    <i class="bi bi-tablet-landscape" style="color:var(--neon); font-size:1.2rem;" aria-hidden="true"></i>
+                    <div>
+                      <div style="font-family:var(--font-mono); font-size:0.68rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--neon);">iPad 2017 — Surcyclé</div>
+                      <div style="font-size:0.82rem; font-weight:600; color:var(--text);">GSI — Glide Slope Indicator</div>
+                    </div>
+                  </div>
+                  <p style="color:#8da4c7; font-size:0.82rem; margin:0;">Visualisation de la pente d'approche ILS. Affiche l'écart vertical en temps réel lors des procédures d'atterrissage aux instruments. Alimenté par les données Telnet extraites de FlightGear via Flask.</p>
+                </div>
+
+                <div style="background:var(--bg); border:1px solid rgba(251,191,36,0.2); border-left:3px solid #fbbf24; border-radius:12px; padding:18px;">
+                  <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                    <i class="bi bi-grid-3x3" style="color:#fbbf24; font-size:1.2rem;" aria-hidden="true"></i>
+                    <div>
+                      <div style="font-family:var(--font-mono); font-size:0.68rem; letter-spacing:1.5px; text-transform:uppercase; color:#fbbf24;">ESP8266 + Matrice LED</div>
+                      <div style="font-size:0.82rem; font-weight:600; color:var(--text);">Affichage Fréquences de Navigation</div>
+                    </div>
+                  </div>
+                  <p style="color:#8da4c7; font-size:0.82rem; margin-bottom:10px;">Matrice à LED pilotée par ESP8266 affichant en temps réel les fréquences actives VOR / ILS / NDB reçues via JSON depuis Flask. Mise à jour dynamique sans blocage du loop principal.</p>
+                  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <span style="background:rgba(251,191,36,0.1); color:#fbbf24; border:1px solid rgba(251,191,36,0.2); border-radius:6px; padding:3px 10px; font-family:var(--font-mono); font-size:0.65rem;">VOR</span>
+                    <span style="background:rgba(251,191,36,0.1); color:#fbbf24; border:1px solid rgba(251,191,36,0.2); border-radius:6px; padding:3px 10px; font-family:var(--font-mono); font-size:0.65rem;">ILS</span>
+                    <span style="background:rgba(251,191,36,0.1); color:#fbbf24; border:1px solid rgba(251,191,36,0.2); border-radius:6px; padding:3px 10px; font-family:var(--font-mono); font-size:0.65rem;">NDB</span>
+                    <span style="background:rgba(251,191,36,0.1); color:#fbbf24; border:1px solid rgba(251,191,36,0.2); border-radius:6px; padding:3px 10px; font-family:var(--font-mono); font-size:0.65rem;">JSON/HTTP</span>
+                    <span style="background:rgba(251,191,36,0.1); color:#fbbf24; border:1px solid rgba(251,191,36,0.2); border-radius:6px; padding:3px 10px; font-family:var(--font-mono); font-size:0.65rem;">ESP8266</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="cursus-block" style="border-color: rgba(129,140,248,0.2);">
+            <div class="d-flex align-items-center gap-3 flex-wrap mb-4">
+              <span class="badge-lab" style="background:rgba(129,140,248,0.08); color:var(--violet); border-color:rgba(129,140,248,0.25);">
+                <i class="bi bi-truck me-2" aria-hidden="true"></i>Nomad Automation & Telemetry
+              </span>
+              <span style="font-family:var(--font-mono); font-size:0.68rem; color:var(--muted); letter-spacing:1px;">LOG #052 — ACTIF</span>
+            </div>
+            <h4 class="fw-bold mb-2 t-white">VAN-HUB : Supervision pour Véhicule Habitable</h4>
+            <p style="color:#8da4c7; margin-bottom:28px;">Centrale d'acquisition d'énergie et environnementale autonome, architecturée autour de modules ESP32 communicant vers un serveur local sécurisé pour le suivi en temps réel des parcs de batteries et des constantes habitacles.</p>
+
+            <div style="background:rgba(8,14,26,0.6); border:1px solid var(--border); border-radius:14px; padding:24px; margin-bottom:24px;">
+              <div style="font-family:var(--font-mono); font-size:0.68rem; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:16px;">
+                <i class="bi bi-diagram-3 me-2" aria-hidden="true"></i>Architecture de la chaîne télémétrique
+              </div>
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-family:var(--font-mono); font-size:0.78rem;">
+                <span style="background:rgba(251,191,36,0.1); color:#fbbf24; border:1px solid rgba(251,191,36,0.2); border-radius:8px; padding:6px 12px;">Parc AGM 12V</span>
+                <i class="bi bi-arrow-right" style="color:var(--muted);" aria-hidden="true"></i>
+                <span style="background:rgba(56,189,248,0.1); color:#38bdf8; border:1px solid rgba(56,189,248,0.2); border-radius:8px; padding:6px 12px;">Pont Diviseur / ADC</span>
+                <i class="bi bi-arrow-right" style="color:var(--muted);" aria-hidden="true"></i>
+                <span style="background:rgba(129,140,248,0.1); color:var(--violet); border:1px solid rgba(129,140,248,0.2); border-radius:8px; padding:6px 12px;">ESP32 (Cyclique)</span>
+                <i class="bi bi-arrow-right" style="color:var(--muted);" aria-hidden="true"></i>
+                <span style="background:rgba(45,212,191,0.1); color:var(--neon); border:1px solid rgba(45,212,191,0.2); border-radius:8px; padding:6px 12px;">Serveur Flask Local</span>
+              </div>
+            </div>
+
+            <div class="row g-4">
+              <div class="col-md-6">
+                <div class="module-step">
+                  <h6>Chaîne d'Acquisition Analogique</h6>
+                  <p>Conception de circuits de conversion et de ponts diviseurs de tension calibrés avec précision pour la lecture des parcs de batteries 12V de forte capacité. Algorithme de lissage des mesures par moyenne glissante pour éliminer le bruit électrique.</p>
+                </div>
+                <div class="module-step">
+                  <h6>Réseau Sensoriel & Gestion d'États</h6>
+                  <p>Intégration d'un bus de capteurs environnementaux (température, humidité) couplé à une routine d'acquisition cyclique non-bloquante (`millis()`). Structuration et packaging des données sous forme de payloads JSON légers.</p>
+                </div>
+                <div class="module-step">
+                  <h6>Serveur Web & Routage Local</h6>
+                  <p>Déploiement d'un backend Flask hébergé localement au sein du véhicule. Centralisation des requêtes POST de l'ESP32, archivage des logs de tension et exposition d'endpoints API sécurisés sans dépendance à Internet.</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+
+                <div style="background:var(--bg); border:1px solid rgba(129,140,248,0.2); border-left:3px solid var(--violet); border-radius:12px; padding:18px; margin-bottom:12px;">
+                  <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                    <i class="bi bi-speedometer2" style="color:var(--violet); font-size:1.2rem;" aria-hidden="true"></i>
+                    <div>
+                      <div style="font-family:var(--font-mono); font-size:0.68rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--violet);">Moniteur Énergétique</div>
+                      <div style="font-size:0.82rem; font-weight:600; color:var(--text);">Dashboard de Supervision UI</div>
+                    </div>
+                  </div>
+                  <p style="color:#8da4c7; font-size:0.82rem; margin:0;">Interface web responsive affichant l'état de charge (SoC), la tension précise du système et les courbes thermiques historiques. Rafraîchissement asynchrone conçu pour une consultation locale via Wi-Fi dédié.</p>
+                </div>
+
+                <div style="background:var(--bg); border:1px solid rgba(45,212,191,0.2); border-left:3px solid var(--neon); border-radius:12px; padding:18px;">
+                  <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                    <i class="bi bi-shield-lock" style="color:var(--neon); font-size:1.2rem;" aria-hidden="true"></i>
+                    <div>
+                      <div style="font-family:var(--font-mono); font-size:0.68rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--neon);">Infrastructure Réseau</div>
+                      <div style="font-size:0.82rem; font-weight:600; color:var(--text);">Réseau Privé & IP Fixe</div>
+                    </div>
+                  </div>
+                  <p style="color:#8da4c7; font-size:0.82rem; margin-bottom:10px;">Connexion stabilisée par adressage IP fixe sur réseau local Wi-Fi embarqué. Exclusion complète de serveurs tiers (zéro cloud), garantissant l'accessibilité des données même en zone blanche absolue.</p>
+                  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <span style="background:rgba(45,212,191,0.1); color:var(--neon); border:1px solid rgba(45,212,191,0.2); border-radius:6px; padding:3px 10px; font-family:var(--font-mono); font-size:0.65rem;">ESP32</span>
+                    <span style="background:rgba(45,212,191,0.1); color:var(--neon); border:1px solid rgba(45,212,191,0.2); border-radius:6px; padding:3px 10px; font-family:var(--font-mono); font-size:0.65rem;">AGM 12V</span>
+                    <span style="background:rgba(45,212,191,0.1); color:var(--neon); border:1px solid rgba(45,212,191,0.2); border-radius:6px; padding:3px 10px; font-family:var(--font-mono); font-size:0.65rem;">IP FIXE</span>
+                    <span style="background:rgba(45,212,191,0.1); color:var(--neon); border:1px solid rgba(45,212,191,0.2); border-radius:6px; padding:3px 10px; font-family:var(--font-mono); font-size:0.65rem;">FLASK</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="did-you-know-box text-center p-5" style="border: 1px dashed rgba(45,212,191,0.3);">
+            <h4 class="fw-bold mb-3 t-white"><i class="bi bi-cpu me-2" style="color:var(--neon)" aria-hidden="true"></i>Le point commun : traitement asynchrone & surcyclage</h4>
+            <p style="color:#8da4c7; margin-bottom:16px; max-width: 800px; margin-left: auto; margin-right: auto;">Qu'il s'agisse de filtrer les flux de données aéronautiques ou d'ordonnancer les mesures énergétiques d'un parc de batteries, nos solutions exploitent le parallélisme et la gestion d'états réactive.</p>
+            <p style="color:#8da4c7; margin:0;">Les iPads en fin de vie deviennent des instruments cockpit. Les ESP8266 et ESP32 récupérés pilotent des matrices et des réseaux locaux. <strong style="color:var(--neon)">Zéro déchet, maximum d'ingénierie.</strong></p>
+          </div>
+        </div>
+
+      </div>
+  </section>
+
+     
+
+  <!-- ─── FOOTER ─────────────────────────────────────────── -->
+  <footer class="site-footer" role="contentinfo">
+    <p class="mb-1"><strong style="color:var(--text)">FREDO_LABO</strong> — Bare-Metal Mastery</p>
+    <p class="mb-0">© 2026 Core Labs Strategic · Salaberry-de-Valleyfield, Québec, Canada</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    /* ─── VIEW MANAGER ───────────────────────────────────── */
+    const ALL_VIEWS = ['main-wrapper','cursus-detail','planification-detail','encours-detail'];
+
+    function showSection(targetId) {
+      ALL_VIEWS.forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('d-none'); });
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.classList.remove('d-none');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        const first = target.querySelector('h1, h2, h3, button');
+        if (first) { first.setAttribute('tabindex','-1'); first.focus({ preventScroll: true }); }
+      }
+      const nav = document.getElementById('navbarNav');
+      if (nav && nav.classList.contains('show')) bootstrap.Collapse.getInstance(nav)?.hide();
+    }
+
+    /* ─── SCROLL ─────────────────────────────────────────── */
+    function scrollToId(id) {
+      const main = document.getElementById('main-wrapper');
+      if (main.classList.contains('d-none')) { showSection('main-wrapper'); setTimeout(() => doScroll(id), 50); }
+      else { doScroll(id); }
+    }
+    function doScroll(id) {
+      const el = document.getElementById(id); if (!el) return;
+      window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 90, behavior: 'smooth' });
+    }
+
+    /* ─── CALCULATEUR ────────────────────────────────────── */
+    function calculateBatteryLife() {
+      const cap = parseFloat(document.getElementById('calc-capacity').value);
+      const awakeMa = parseFloat(document.getElementById('calc-awake').value);
+      const sleepUa = parseFloat(document.getElementById('calc-sleep').value);
+      const awakeSec = parseFloat(document.getElementById('calc-time').value);
+      const result = document.getElementById('calc-result');
+      if ([cap,awakeMa,sleepUa,awakeSec].some(isNaN)) { result.textContent = 'Entrées invalides.'; return; }
+      const avgMa = (awakeMa * (awakeSec/3600)) + ((sleepUa/1000) * (1 - awakeSec/3600));
+      const days = Math.round(cap / avgMa / 24);
+      result.textContent = `Résultat estimé : ${days} jour${days>1?'s':''} de fonctionnement`;
+    }
+
+    /* ─── TERMINAL ───────────────────────────────────────── */
+    const termInput = document.getElementById('term-field');
+    const termHistory = document.getElementById('term-history');
+
+    termInput.addEventListener('keydown', function(e) {
+      if (e.key !== 'Enter') return;
+      const cmd = termInput.value.trim().toLowerCase();
+      let reply = `\n> ${termInput.value}\n`;
+      switch(cmd) {
+        case 'help':
+          reply += 'Commandes disponibles :\n  status   — État de la station\n  logs     — Derniers Lab Logs\n  projects — Projets actifs\n  stack    — Stack technologique\n  contact  — Aller au formulaire\n  clear    — Effacer le terminal';
+          break;
+        case 'status':
+          reply += 'SYSTEM    : ONLINE\nNODE      : Valleyfield, QC\nIP MODE   : FIXED\nCLOUD     : DISABLED (Local-Only)\nACTIVE    : VAN-HUB / IFR-SIM';
+          break;
+        case 'logs':
+          reply += '[#048] VAN-HUB / Réseau Sensoriel — ACTIF\n[#047] IFR Avionics / FlightGear — ACTIF\n[#045] Stabilité Serveur Local — COMPLÉTÉ\n[#042] Optimisation Deep Sleep — COMPLÉTÉ';
+          break;
+        case 'projects':
+          reply += 'PROJET 1 : VAN-HUB (ESP32, Flask, I2C)\nPROJET 2 : FlightGear IFR (Python asyncio)\nStatus   : En développement actif';
+          break;
+        case 'stack':
+          reply += 'STACK  : C++ Bare-Metal / FreeRTOS\nBACKEND: Python / Flask / SQLite\nRF     : ESP-NOW, LoRa\nMCU    : ESP32, ESP8266, AVR, STM32';
+          break;
+        case 'contact':
+          reply += 'Ancrage vers formulaire de contact…';
+          setTimeout(() => { showSection('main-wrapper'); scrollToId('contact-detail'); }, 400);
+          break;
+        case 'clear':
+          termHistory.textContent = 'Terminal réinitialisé.'; termInput.value = ''; return;
+        default:
+          reply += `Commande '${cmd}' inconnue. Tapez 'help'.`;
+      }
+      termHistory.textContent += reply;
+      termHistory.scrollTop = termHistory.scrollHeight;
+      termInput.value = '';
+    });
+
+    /* ─── FORMS ──────────────────────────────────────────── */
+    function handleContactSubmit() {
+      const name  = document.getElementById('contact-name').value.trim();
+      const email = document.getElementById('contact-email').value.trim();
+      const msg   = document.getElementById('contact-msg').value.trim();
+      if (!name||!email||!msg) { alert('Veuillez remplir tous les champs.'); return; }
+      alert(`Message reçu, ${name}. Nous vous répondrons à ${email} sous peu.`);
+    }
+    function handlePlanSubmit() {
+      const name  = document.getElementById('plan-name').value.trim();
+      const email = document.getElementById('plan-email').value.trim();
+      if (!name||!email) { alert('Veuillez indiquer votre nom et courriel.'); return; }
+      alert(`Projet soumis. Nous analyserons votre demande et vous contacterons à ${email}.`);
+    }
+
+    /* ─── CURSOR GLOW ────────────────────────────────────── */
+    const glow = document.getElementById('cursorGlow');
+    document.addEventListener('mousemove', e => { glow.style.left = e.clientX+'px'; glow.style.top = e.clientY+'px'; });
+  </script>
+</body>
+</html>
