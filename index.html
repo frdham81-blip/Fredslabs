@@ -793,7 +793,36 @@ Tapez 'help' pour lister les requêtes disponibles.</div>
     </div>
   </section>
 
-
+  <!-- ═══════════════════════════════════════════════════════
+       VIEW 3 — PLANIFICATION
+  ════════════════════════════════════════════════════════ -->
+  <section id="planification-detail" class="view d-none" aria-label="Planification de projet">
+    <div class="container" style="padding:80px 24px;">
+      <button onclick="showSection('main-wrapper')" class="btn-outline-lab mb-5 d-inline-flex align-items-center gap-2" type="button">
+        <i class="bi bi-arrow-left" aria-hidden="true"></i> Retour
+      </button>
+      <div class="text-center mb-5">
+        <span class="section-label">Ingénierie & Co-Développement</span>
+        <h2 class="display-5 fw-bold mb-3">Planification de Projet <span class="gradient-text">& Support</span></h2>
+        <p class="lead-text mx-auto" style="max-width:600px;">Déployez vos architectures embarquées et collaborez sur des innovations technologiques prometteuses à des conditions avantageuses.</p>
+      </div>
+      <div class="row g-4">
+        <div class="col-lg-7">
+          <div class="plan-step"><div class="plan-step-header"><div class="plan-num">01</div><h5>Vision Globale : Du Concept au Silicium</h5></div><p>Nous structurons vos concepts théoriques en architectures logicielles et matérielles concrètes. Notre analyse préalable permet de définir les arbres de décision et de valider les schémas synoptiques en amont du prototypage.</p></div>
+          <div class="plan-step" style="border-left:3px solid var(--violet);"><div class="plan-step-header"><div class="plan-num">02</div><h5><i class="bi bi-braces me-2" style="color:var(--violet)" aria-hidden="true"></i>Support Écosystème Arduino C++</h5></div><p>Assistance complète pour l'écriture de bibliothèques orientées objet, l'optimisation de l'empreinte mémoire sur puces AVR et le débogage de codes complexes.</p></div>
+          <div class="plan-step" style="border-left:3px solid var(--neon);"><div class="plan-step-header"><div class="plan-num accent">03</div><h5><i class="bi bi-cpu me-2" style="color:var(--neon)" aria-hidden="true"></i>Architecture ESP32 Dual-Core</h5></div><p>Déploiement de tâches asynchrones réparties sur les deux cœurs de l'ESP32 via FreeRTOS. Configuration des piles de connectivité sécurisées pour la gestion de capteurs distants.</p></div>
+          <div class="plan-step"><div class="plan-step-header"><div class="plan-num">04</div><h5>Optimisation de Modules ESP8266</h5></div><p>Stabilisation des connexions réseau TCP/IP, réduction de la consommation électrique et mise en place de scripts d'acquisition de données compacts et résilients.</p></div>
+          <div class="plan-step" style="background:linear-gradient(135deg,rgba(129,140,248,0.05),rgba(45,212,191,0.03)); border-color:rgba(45,212,191,0.2);"><div class="plan-step-header"><div class="plan-num gold">05</div><h5><i class="bi bi-rocket-takeoff-fill me-2" style="color:#fbbf24" aria-hidden="true"></i>Synergie & Projets Prometteurs</h5></div><p>Nous aimons nous impliquer dans les projets innovants (télémétrie, robotique, drones, réseaux décentralisés). Nous offrons nos compétences comme partenaire technique clé.</p></div>
+          <div class="plan-step"><div class="plan-step-header"><div class="plan-num">06</div><h5>Architecture Logicielle Non-Bloquante</h5></div><p>Conception de firmwares basés sur des machines à états finis exécutées de façon cyclique et fluide. Bannissement total des fonctions bloquantes au profit d'ordonnanceurs temporels réactifs.</p></div>
+          <div class="plan-step"><div class="plan-step-header"><div class="plan-num">07</div><h5>Réseaux de Données Privés & Serveurs Locaux</h5></div><p>Priorité à la confidentialité et à l'indépendance cloud. Routage des flux de télémétrie vers des serveurs d'acquisition locaux (Flask/Python) hébergés sur votre propre réseau sécurisé.</p></div>
+          <div class="plan-step"><div class="plan-step-header"><div class="plan-num">08</div><h5>Sourcing Éco-Conçu & Matériel Revalorisé</h5></div><p>Intégration de composants issus de l'économie circulaire (moteurs, alimentations modifiées, capteurs industriels revalorisés) afin de limiter les coûts de prototypage.</p></div>
+          <div class="plan-step"><div class="plan-step-header"><div class="plan-num">09</div><h5>Monitoring Énergétique & Calibrage CAN</h5></div><p>Planification des boucles d'acquisition pour la gestion d'énergie (suivi de tension de batteries, étalonnage de convertisseurs analogique-numérique et réduction de la consommation en veille).</p></div>
+          <div class="plan-step"><div class="plan-step-header"><div class="plan-num">10</div><h5>Gestion Inter-Composants & Bus Matériels</h5></div><p>Mise en place et analyse des signaux pour I2C, bus SPI à haute vitesse et liaisons séries asynchrones (UART).</p></div>
+          <div class="plan-step" style="border-left:3px solid #4ade80;"><div class="plan-step-header"><div class="plan-num green">11</div><h5 style="color:#4ade80">Tarifs Équitables & Accessibles</h5></div><p>L'accès à l'ingénierie technique de pointe ne devrait pas être limité par des budgets inaccessibles. Grille tarifaire avantageuse et proportionnelle à la complexité réelle de chaque projet.</p></div>
+          <div class="plan-step"><div class="plan-step-header"><div class="plan-num">12</div><h5>Livrables Documentés & Transfert Technologique</h5></div><p>Codes sources intégralement commentés, schémas de câblage détaillés et accompagnement personnalisé pour garantir votre parfaite autonomie lors des phases de maintenance.</p></div>
+        
+        </div>
+          </section>
     
 
   <!-- ═══════════════════════════════════════════════════════
@@ -992,7 +1021,7 @@ Tapez 'help' pour lister les requêtes disponibles.</div>
 
   <!-- ─── FOOTER ─────────────────────────────────────────── -->
   <footer class="site-footer" role="contentinfo">
-    <p class="mb-1"><strong style="color:var(--text)">Inno-PY_LABO</strong> — Bare-Metal Mastery</p>
+    <p class="mb-1"><strong style="color:var(--text)">FREDO_LABO</strong> — Bare-Metal Mastery</p>
     <p class="mb-0">© 2026 Frederic Hamelin  · Salaberry-de-Valleyfield, Québec, Canada</p>
   </footer>
 
@@ -1067,8 +1096,7 @@ Tapez 'help' pour lister les requêtes disponibles.</div>
           setTimeout(() => { showSection('main-wrapper'); scrollToId('contact-detail'); }, 400);
           break;
         case 'clear':
-          termHistory.textContent
- = 'Terminal réinitialisé.'; termInput.value = ''; return;
+          termHistory.textContent = 'Terminal réinitialisé.'; termInput.value = ''; return;
         default:
           reply += `Commande '${cmd}' inconnue. Tapez 'help'.`;
       }
